@@ -60,6 +60,11 @@ app.post("/", cors(), (req, res) => {
   res.json({ m: "hello" });
 });
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
+
 app.use("/api", appointmentRouts);
 app.use("/api", clientRouts);
 app.use("/api", scheduleRouts);
