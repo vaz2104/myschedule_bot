@@ -38,7 +38,7 @@ router.get("/company", cors(), async (req, res) => {
     return res.status(400).json({ message: "Bad Request. Invalid data" });
   }
 
-  const company = await Company.find({
+  const company = await Company.findOne({
     userId,
   }).exec();
 

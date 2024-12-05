@@ -33,15 +33,13 @@ router.post("/client", cors(), async (req, res) => {
 });
 
 router.get("/client", cors(), async (req, res) => {
-  let { username, userId, phone, initials } = req.query;
-  // let { username, userId, phone, initials } = req.body;
+  let { userId } = req.query;
 
-  if (!username || !userId) {
+  if (!userId) {
     return res.status(400).json({ message: "Bad Request. Invalid data" });
   }
 
   const client = await Client.findOne({
-    username,
     userId,
   }).exec();
 
