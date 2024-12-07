@@ -13,6 +13,10 @@ const NotificationsSchema = new Schema({
     type: String,
     default: "",
   },
+  owner: {
+    type: String,
+    default: "",
+  },
   type: {
     type: String,
     default: "",
@@ -23,7 +27,7 @@ const NotificationsSchema = new Schema({
   },
   date: {
     type: Date,
-    default: "",
+    default: new Date(),
   },
 });
 
