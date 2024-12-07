@@ -4,7 +4,7 @@ class AppointmentService {
   async create(options) {
     let { company_id, client_id, schedule_id } = options;
 
-    if (!company_id && !client_id && !schedule_id) {
+    if (!company_id || !client_id || !schedule_id) {
       throw new Error("Invalid data was sent"); // 400
     }
 
