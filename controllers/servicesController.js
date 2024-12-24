@@ -33,6 +33,7 @@ class ServicesController {
       const service = await ServiceService.update(req.body);
       res.json(service);
     } catch (error) {
+      console.log(error);
       res.status(500).json(error.message);
     }
   }

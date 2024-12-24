@@ -13,7 +13,7 @@ const NotificationsSchema = new Schema({
     type: String,
     default: "",
   },
-  owner: {
+  receiver: {
     type: String,
     default: "",
   },

@@ -4,6 +4,7 @@ class ServicesController {
   async create(req, res) {
     try {
       const notification = await notificationService.create(req.body);
+      console.log(notification);
       res.json(notification);
     } catch (error) {
       res.status(500).json(error.message);
@@ -13,7 +14,7 @@ class ServicesController {
   async getAllByClientId(req, res) {
     try {
       const notifications = await notificationService.getAllByClientId(
-        req.query?.clientId
+        req.params?.id
       );
       res.json(notifications);
     } catch (error) {
@@ -24,7 +25,7 @@ class ServicesController {
   async getAllByCompanyId(req, res) {
     try {
       const notifications = await notificationService.getAllByCompanyId(
-        req.query?.companyId
+        req.params?.id
       );
       res.json(notifications);
     } catch (error) {

@@ -48,7 +48,8 @@ class ServiceService {
   }
 
   async update(options) {
-    if (!options?._id || !options?.service) {
+    console.log(options);
+    if (!options?.service_id || !options?.service) {
       throw new Error("Invalid data was sent"); // 400
     }
 
@@ -60,7 +61,7 @@ class ServiceService {
     }
 
     const updatedService = await CompanyService.findByIdAndUpdate(
-      options?._id,
+      options?.service_id,
       options,
       { new: true }
     );

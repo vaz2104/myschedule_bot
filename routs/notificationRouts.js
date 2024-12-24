@@ -5,12 +5,12 @@ const cors = require("cors");
 
 router.post("/notification", cors(), notificationController.create);
 router.get(
-  "/notification/client",
+  "/notification/client/:id",
   cors(),
   notificationController.getAllByClientId
 );
 router.get(
-  "/notification/company",
+  "/notification/company/:id",
   cors(),
   notificationController.getAllByCompanyId
 );
