@@ -18,9 +18,14 @@ class ClientService {
     return newClient;
   }
 
-  async getAll() {
-    const clients = await Client.find();
-    return clients;
+  async getByTelegramId(id) {
+    if (!id) {
+      throw new Error("Invalid data was sent"); // 400
+    }
+    const client = await Client.findOne({
+      userId: id.toString(),
+    }).exec();
+    return client;
   }
 
   async getOne(id) {
@@ -28,7 +33,7 @@ class ClientService {
       throw new Error("Invalid data was sent"); // 400
     }
     const client = await Client.findOne({
-      userId: id.toString(),
+      _id: id.toString(),
     }).exec();
 
     return client;

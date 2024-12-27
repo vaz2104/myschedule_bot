@@ -11,9 +11,9 @@ class ClientController {
     }
   }
 
-  async getAll(req, res) {
+  async getByTelegramId(req, res) {
     try {
-      const clients = await ClientService.getAll();
+      const clients = await ClientService.getByTelegramId(req.params?.id);
       res.json(clients);
     } catch (error) {
       res.status(500).json(error.message);

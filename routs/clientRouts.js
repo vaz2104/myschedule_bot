@@ -4,7 +4,7 @@ const cors = require("cors");
 const clientController = require("../controllers/clientController");
 
 router.post("/client", cors(), clientController.create);
-router.get("/client", cors(), clientController.getAll);
+router.get("/client/telegramId/:id", cors(), clientController.getByTelegramId);
 router.get("/client/:id", cors(), clientController.getOne);
 router.put("/client", cors(), clientController.update);
 

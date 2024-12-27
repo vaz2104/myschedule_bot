@@ -19,6 +19,7 @@ class AppointmentService {
 
     const notifications = await Notifications.find({
       client_id: id,
+      receiver: "client",
     })
       .populate(["client_id", "company_id"])
       .sort([["date", -1]])
@@ -34,6 +35,7 @@ class AppointmentService {
 
     const notifications = await Notifications.find({
       company_id: id,
+      receiver: "company",
     })
       .populate(["client_id", "company_id"])
       .sort([["date", -1]])
@@ -63,6 +65,24 @@ class AppointmentService {
 
     return notification;
   }
+
+  async updateStatus(options) {
+    const { id, type } = options;
+    if (!id || !type) {
+      throw new Error("Invalid data was sent"); // 400
+    }
+
+    const query = {
+      isOpened: false,
+    };
+
+    query[`${type}_id`] = id;
+
+    const updated = await Notifications.updateMany(query, { isOpened: true });
+
+    return updated;
+  }
+
   async delete(id) {
     if (!id) {
       throw new Error("Invalid data was sent"); // 400

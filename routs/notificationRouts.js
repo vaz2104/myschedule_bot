@@ -16,6 +16,11 @@ router.get(
 );
 router.get("/notification/:id", cors(), notificationController.getOne);
 router.put("/notification", cors(), notificationController.update);
+router.put(
+  "/notification/update-status",
+  cors(),
+  notificationController.updateStatus
+);
 router.delete("/notification/:id", cors(), notificationController.delete);
 
 module.exports = router;
