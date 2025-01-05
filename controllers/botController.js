@@ -9,6 +9,18 @@ class BotController {
       res.status(500).json(error.message);
     }
   }
+
+  async getClientPhoto(req, res) {
+    try {
+      const clientPhoto = await BotService.getClientPhoto(
+        req.params?.id,
+        req.query?.companyId
+      );
+      res.json(clientPhoto);
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  }
 }
 
 module.exports = new BotController();

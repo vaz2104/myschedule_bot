@@ -27,7 +27,7 @@ class ScheduleService {
 
     const searchDate = new Date();
     query.date = {
-      $gte: `${searchDate.getFullYear()}-${searchDate.getMonth()}-1`,
+      $gte: `${searchDate.getFullYear()}-${searchDate.getMonth() + 1}-1`,
     };
 
     if (date) {
