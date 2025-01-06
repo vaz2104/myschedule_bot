@@ -30,6 +30,16 @@ class ServiceService {
     if (!company) {
       throw new Error("Company was not found"); // 404
     }
+    const today = new Date();
+    const updatedServices = await CompanyService.updateMany(
+      {
+        saleEndDay: { $lt: today },
+      },
+      {
+        sale: "",
+        saleEndDay: null,
+      }
+    ).exec();
 
     const services = await CompanyService.find({
       company_id: companyId,

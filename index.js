@@ -8,6 +8,8 @@ const scheduleRouts = require("./routs/scheduleRouts");
 const serviceRouts = require("./routs/serviceRouts");
 const notificationRouts = require("./routs/notificationRouts");
 const botRouts = require("./routs/botRouts");
+const subscriptionRouts = require("./routs/subscriptionRouts");
+
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -73,6 +75,7 @@ app.use("/api", serviceRouts);
 app.use("/api", companyRouts);
 app.use("/api", notificationRouts);
 app.use("/api", botRouts);
+app.use("/api", subscriptionRouts);
 
 app.listen(port, () => {
   console.log(`Listening! on port ${port}`);
