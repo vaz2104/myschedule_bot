@@ -13,7 +13,7 @@ const ClientSchema = new Schema({
     type: String,
     default: "",
   },
-  avatar: {
+  photo_url: {
     type: String,
     default: "",
   },
