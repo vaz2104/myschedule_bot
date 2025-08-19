@@ -10,7 +10,7 @@ const WorkerBotRelationsSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "TelegramUser",
   },
-  isDisables: {
+  isBlocked: {
     type: Boolean,
     default: false,
   },
