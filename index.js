@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const PanelsInitialization = require("./modules/InitPanels");
 const MainBotMethods = require("./modules/MainBotMethods");
+const botRouts = require("./routs/v.2/botRouts");
 
 const app = express();
 
@@ -48,7 +49,7 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to a MySchedule`s API" });
 });
-// app.use("/api", studentRouts);
+app.use("/api", botRouts);
 
 app.listen(process.env.PORT, () => {
   console.log(`Main bot started and listening on port ${process.env.PORT}`);

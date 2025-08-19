@@ -1,4 +1,4 @@
-const BotService = require("../services/botService");
+const BotService = require("../../services/v.2/botService");
 
 class BotController {
   async getInfo(req, res) {
@@ -13,7 +13,7 @@ class BotController {
   async getClientPhoto(req, res) {
     try {
       const clientPhoto = await BotService.getClientPhoto(
-        req.params?.id,
+        req.query?.clientId,
         req.query?.companyId
       );
       res.json(clientPhoto);

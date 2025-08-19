@@ -1,5 +1,5 @@
 const TelegramBot = require("node-telegram-bot-api");
-const Company = require("../models/Company");
+const Bot = require("../../models/v.20/Bot");
 
 class BotService {
   async getInfo(token) {
@@ -23,7 +23,6 @@ class BotService {
       }
     }
 
-    bot.stopPolling();
     bot = null;
     return data;
   }
@@ -33,7 +32,7 @@ class BotService {
       throw new Error("Invalid data was sent"); // 400
     }
 
-    const company = await Company.findOne({
+    const company = await Bot.findOne({
       _id: companyId,
     });
 
