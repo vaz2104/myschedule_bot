@@ -1,4 +1,6 @@
 const { Schema, model } = require("mongoose");
+const moment = require("moment-timezone");
+const dateUkrain = moment.tz(Date.now(), "Europe/Kyiv");
 
 const NotificationsSchema = new Schema({
   company_id: {
@@ -27,7 +29,7 @@ const NotificationsSchema = new Schema({
   },
   date: {
     type: Date,
-    default: new Date(),
+    default: dateUkrain,
   },
 });
 

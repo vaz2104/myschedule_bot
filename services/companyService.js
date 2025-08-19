@@ -41,9 +41,9 @@ class CompanyService {
     return company;
   }
 
-  async update(options) {
-    let { _id, botToken, username, userId } = options;
-    if (!_id || !username || !userId || !botToken) {
+  async update(_id, options) {
+    let { botToken } = options;
+    if (!_id || !botToken) {
       throw new Error("Invalid data was sent"); // 400
     }
 

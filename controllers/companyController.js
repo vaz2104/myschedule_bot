@@ -32,7 +32,7 @@ class CompanyController {
 
   async update(req, res) {
     try {
-      const company = await CompanyService.update(req.body);
+      const company = await CompanyService.update(req.params?.id, req.body);
       res.json(company);
     } catch (error) {
       res.status(500).json(error.message);

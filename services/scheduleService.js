@@ -16,7 +16,7 @@ class ScheduleService {
   }
 
   async getAll(options) {
-    const { companyId, date } = options;
+    const { companyId, date, startDate, endDate } = options;
     if (!companyId) {
       throw new Error("Invalid data was sent"); // 400
     }
@@ -30,12 +30,20 @@ class ScheduleService {
       $gte: `${searchDate.getFullYear()}-${searchDate.getMonth() + 1}-1`,
     };
 
+    if (startDate && endDate) {
+      query.date = {
+        $gte: `${startDate}T00:00:00.000Z`,
+        $lte: `${endDate}T00:00:00.000Z`,
+      };
+    }
+
     if (date) {
       query.date = {
         $eq: `${date}T00:00:00.000Z`,
       };
     }
 
+    console.log(query);
     const schedule = await CompanySchedule.find(query);
     const ids = [];
     schedule.forEach((el) => ids.push(el._id));

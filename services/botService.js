@@ -11,7 +11,7 @@ class BotService {
       polling: false,
     });
 
-    // return
+    if (!bot) return null;
 
     const data = await bot.getMe();
 
