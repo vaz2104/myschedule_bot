@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const dateUkrainTZ = require("../../lib/getCurrentDateUkrainTimeZone");
 
 const AppointmentRelationsSchema = new Schema({
   botId: {
@@ -19,7 +20,7 @@ const AppointmentRelationsSchema = new Schema({
   },
   date: {
     type: Date,
-    default: new Date(),
+    default: new Date(dateUkrainTZ),
   },
   timestamp: {
     type: Number,

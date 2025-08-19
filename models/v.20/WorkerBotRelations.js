@@ -1,12 +1,12 @@
 const { Schema, model } = require("mongoose");
-const dateUkrainTZ = require("../lib/getCurrentDateUkrainTimeZone");
+const dateUkrainTZ = require("../../lib/getCurrentDateUkrainTimeZone");
 
 const WorkerBotRelationsSchema = new Schema({
   botId: {
     type: Schema.Types.ObjectId,
     ref: "Bot",
   },
-  telegramUserId: {
+  workerId: {
     type: Schema.Types.ObjectId,
     ref: "TelegramUser",
   },

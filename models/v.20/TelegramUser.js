@@ -1,5 +1,5 @@
 const { Schema, model } = require("mongoose");
-const dateUkrainTZ = require("../lib/getCurrentDateUkrainTimeZone");
+const dateUkrainTZ = require("../../lib/getCurrentDateUkrainTimeZone");
 
 const TelegramUserSchema = new Schema({
   username: {
