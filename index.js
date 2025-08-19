@@ -7,6 +7,7 @@ const cors = require("cors");
 const PanelsInitialization = require("./modules/InitPanels");
 const MainBotMethods = require("./modules/MainBotMethods");
 const botRouts = require("./routs/v.2/botRouts");
+const companyRouts = require("./routs/v.2/companyRouts");
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to a MySchedule`s API" });
 });
 app.use("/api", botRouts);
+app.use("/api", companyRouts);
 
 app.listen(process.env.PORT, () => {
   console.log(`Main bot started and listening on port ${process.env.PORT}`);

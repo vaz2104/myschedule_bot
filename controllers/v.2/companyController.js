@@ -1,21 +1,10 @@
-const CompanyService = require("../services/companyService");
+const CompanyService = require("../../services/v.2/companyService");
 
 class CompanyController {
   async create(req, res) {
     try {
       const company = await CompanyService.create(req.body);
       res.json(company);
-    } catch (error) {
-      res.status(500).json(error.message);
-    }
-  }
-
-  async getAllOrCompanyId(req, res) {
-    try {
-      const companies = await CompanyService.getAllOrCompanyId(
-        req.query?.userId
-      );
-      res.json(companies);
     } catch (error) {
       res.status(500).json(error.message);
     }
