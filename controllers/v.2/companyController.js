@@ -10,6 +10,14 @@ class CompanyController {
     }
   }
 
+  async getAll(req, res) {
+    try {
+      const company = await CompanyService.getAll(req.query);
+      res.json(company);
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  }
   async getOne(req, res) {
     try {
       const company = await CompanyService.getOne(req.params?.id);

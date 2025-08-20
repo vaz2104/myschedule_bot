@@ -20,6 +20,15 @@ class CompanyService {
     return newCompany;
   }
 
+  async getAll(options) {
+    if (!options) {
+      throw new Error("Invalid data was sent"); // 400
+    }
+
+    const companies = await Bot.find(options);
+    return companies;
+  }
+
   async getOne(id) {
     if (!id) {
       throw new Error("Invalid data was sent"); // 400
