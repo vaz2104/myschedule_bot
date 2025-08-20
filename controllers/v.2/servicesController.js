@@ -1,4 +1,4 @@
-const ServiceService = require("../services/serviceService");
+const ServiceService = require("../../services/v.2/serviceService");
 
 class ServicesController {
   async create(req, res) {
@@ -12,7 +12,7 @@ class ServicesController {
 
   async getAll(req, res) {
     try {
-      const services = await ServiceService.getAll(req.query?.company_id);
+      const services = await ServiceService.getAll(req.query);
       res.json(services);
     } catch (error) {
       res.status(500).json(error.message);
@@ -30,7 +30,7 @@ class ServicesController {
 
   async update(req, res) {
     try {
-      const service = await ServiceService.update(req.body);
+      const service = await ServiceService.update(req.params?.id, req.body);
       res.json(service);
     } catch (error) {
       console.log(error);

@@ -1,10 +1,9 @@
-const Company = require("../models/Company");
-const CompanyService = require("../models/CompanyService");
-const formatDate = require("../lib/formatDate");
+const formatDate = require("../../lib/formatDate");
+const CompanyService = require("../../models/v.20/CompanyService");
 
 class ServiceService {
   async create(options) {
-    if (!options?.company_id || !options?.service) {
+    if (!options?.botId || !options?.service) {
       throw new Error("Invalid data was sent"); // 400
     }
 
@@ -20,18 +19,13 @@ class ServiceService {
     return newService;
   }
 
-  async getAll(companyId) {
-    if (!companyId) {
+  async getAll(query) {
+    if (!query) {
       throw new Error("Invalid data was sent"); // 400
     }
 
-    const company = await Company.findById(companyId);
-
-    if (!company) {
-      throw new Error("Company was not found"); // 404
-    }
     const today = new Date();
-    const updatedServices = await CompanyService.updateMany(
+    await CompanyService.updateMany(
       {
         saleEndDay: { $lt: today },
       },
@@ -41,9 +35,7 @@ class ServiceService {
       }
     ).exec();
 
-    const services = await CompanyService.find({
-      company_id: companyId,
-    }).exec();
+    const services = await CompanyService.find(query).exec();
 
     return services;
   }
@@ -57,33 +49,32 @@ class ServiceService {
     return service;
   }
 
-  async update(options) {
-    console.log(options);
-    if (!options?.service_id || !options?.service) {
+  async update(serviceId, options) {
+    if (!serviceId) {
       throw new Error("Invalid data was sent"); // 400
     }
 
-    if (options.saleEndDay) {
-      const saleDate = new Date(options.saleEndDay);
+    if (options?.saleEndDay) {
+      const saleDate = new Date(options?.saleEndDay);
       const filteredDate = `${formatDate(saleDate)}T00:00:00.000Z`;
 
       options.saleEndDay = filteredDate;
     }
 
     const updatedService = await CompanyService.findByIdAndUpdate(
-      options?.service_id,
+      serviceId,
       options,
       { new: true }
     );
     return updatedService;
   }
 
-  async delete(id) {
-    if (!id) {
+  async delete(serviceId) {
+    if (!serviceId) {
       throw new Error("Invalid data was sent"); // 400
     }
 
-    const deletedService = await CompanyService.findByIdAndDelete(id);
+    const deletedService = await CompanyService.findByIdAndDelete(serviceId);
     return deletedService;
   }
 }
