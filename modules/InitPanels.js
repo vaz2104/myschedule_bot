@@ -11,11 +11,11 @@ async function PanelsInitialization() {
     tokens.forEach((botConfig, index) => {
       console.log(`Запускаємо ${botConfig._id}...`);
       const port = 3000 + index + 10;
-      const botProcess = fork("./Panel.js", [
-        botConfig.token,
-        port,
-        botConfig._id,
-      ]);
+      const botProcess = fork(
+        "./modules/Panel.js",
+        [botConfig.token, port, botConfig._id]
+        // { silent: true }
+      );
 
       // Логування повідомлень з процесу бота
       botProcess.on("message", (message) => {

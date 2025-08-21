@@ -1,3 +1,4 @@
+const ClientBotRelations = require("../models/v.20/ClientBotRelations");
 const TelegramUser = require("../models/v.20/TelegramUser");
 const PanelHelpers = require("./PanelHelpers");
 
@@ -14,8 +15,13 @@ class PanelMethods {
       const { id: userId, username, first_name: firstName } = msg.from;
       const dataParts = msg.text.split(" ");
 
-      let telegramUser = await TelegramUser.find({ userId });
+      const telegramUserResponse = await TelegramUser.find({ userId });
+      let telegramUser = telegramUserResponse?.length
+        ? telegramUserResponse[0]
+        : null;
       let isNewUser = false;
+
+      const botData = await bot.getMe();
 
       try {
         await bot.sendChatAction(userId, "typing");
@@ -28,8 +34,6 @@ class PanelMethods {
             userId,
             firstName,
           };
-
-          console.log(newUserOptions);
 
           const avatars = await bot.getUserProfilePhotos(userId);
 
@@ -44,7 +48,7 @@ class PanelMethods {
 
         console.log("active telegram user");
 
-        let isUserClient = await ClientBotRelationsSchema.find({
+        let isUserClient = await ClientBotRelations.find({
           botId,
           telegramUserId: telegramUser?._id,
         });
@@ -52,7 +56,7 @@ class PanelMethods {
         if (!isUserClient.length) {
           console.log("telegram user is not a client");
 
-          await ClientBotRelationsSchema.create({
+          let newRelation = await ClientBotRelations.create({
             botId,
             telegramUserId: telegramUser?._id,
           });
@@ -66,7 +70,7 @@ class PanelMethods {
             userId,
             `Привіт ${
               username ? `@${username}` : `<b>${firstName}</b>`
-            }!\nВітаємо в <b>BOT NAME</b>`,
+            }!\nВітаємо в <b>${botData.first_name}</b>`,
             {
               parse_mode: "HTML",
             }
@@ -99,7 +103,7 @@ class PanelMethods {
 
         await bot.sendMessage(
           userId,
-          "Вибачте, сталася помилка! Повторіть спробу знову!"
+          `Вибачте, сталася помилка! Повторіть спробу знову! ${error}`
         );
       }
     });

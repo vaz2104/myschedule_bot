@@ -35,6 +35,23 @@ class CompanyController {
       res.status(500).json(error.message);
     }
   }
+
+  async getClientRelation(req, res) {
+    try {
+      const company = await CompanyService.getClientRelation(req.query);
+      res.json(company);
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  }
+  async getWorkerRelation(req, res) {
+    try {
+      const company = await CompanyService.getWorkerRelation(req.query);
+      res.json(company);
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  }
 }
 
 module.exports = new CompanyController();
