@@ -1,5 +1,6 @@
 const formatDate = require("../../lib/formatDate");
 const CompanyService = require("../../models/v.20/CompanyService");
+const TelegramNotifications = require("../../modules/TelegramNotifications");
 
 class ServiceService {
   async create(options) {
@@ -35,7 +36,7 @@ class ServiceService {
       }
     ).exec();
 
-    const services = await CompanyService.find(query).exec();
+    const services = await CompanyService.find(query).sort([["timestamp", -1]]);
 
     return services;
   }
@@ -54,18 +55,35 @@ class ServiceService {
       throw new Error("Invalid data was sent"); // 400
     }
 
-    if (options?.saleEndDay) {
-      const saleDate = new Date(options?.saleEndDay);
+    const { query, hasNotification } = options;
+
+    const oldServiceState = await CompanyService.findById(serviceId);
+
+    if (query?.saleEndDay) {
+      const saleDate = new Date(query?.saleEndDay);
       const filteredDate = `${formatDate(saleDate)}T00:00:00.000Z`;
 
-      options.saleEndDay = filteredDate;
+      query.saleEndDay = filteredDate;
     }
 
     const updatedService = await CompanyService.findByIdAndUpdate(
       serviceId,
-      options,
+      query,
       { new: true }
     );
+
+    // const isDiscountUpdated =
+    //   formatDate(oldServiceState?.saleEndDay) !==
+    //     formatDate(options?.saleEndDay) ||
+    //   oldServiceState?.priceWithSale != options?.priceWithSale;
+
+    if (hasNotification) {
+      await TelegramNotifications.newServiceDiscount(
+        oldServiceState,
+        updatedService
+      );
+    }
+
     return updatedService;
   }
 

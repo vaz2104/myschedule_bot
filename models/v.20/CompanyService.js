@@ -14,7 +14,7 @@ const CompanyServiceSchema = new Schema({
     type: String,
     default: "",
   },
-  sale: {
+  priceWithSale: {
     type: String,
     default: "",
   },
@@ -25,6 +25,10 @@ const CompanyServiceSchema = new Schema({
   saleEndDay: {
     type: Date,
     default: "",
+  },
+  timestamp: {
+    type: Number,
+    default: Date.now(),
   },
 });
 

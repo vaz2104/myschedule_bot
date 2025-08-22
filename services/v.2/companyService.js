@@ -91,7 +91,9 @@ class CompanyService {
       throw new Error("Invalid data was sent"); // 400
     }
 
-    const relation = await ClientBotRelations.find(options);
+    const relation = await ClientBotRelations.find(options).populate([
+      "telegramUserId",
+    ]);
     return relation;
   }
 
