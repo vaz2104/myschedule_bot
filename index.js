@@ -10,6 +10,7 @@ const botRouts = require("./routs/v.2/botRouts");
 const companyRouts = require("./routs/v.2/companyRouts");
 const servicesRouts = require("./routs/v.2/serviceRouts");
 const userRouts = require("./routs/v.2/userRouts");
+const appointmentRouts = require("./routs/v.2/appointmentRouts");
 
 const app = express();
 
@@ -56,6 +57,7 @@ app.use("/api", botRouts);
 app.use("/api", companyRouts);
 app.use("/api", servicesRouts);
 app.use("/api", userRouts);
+app.use("/api", appointmentRouts);
 
 app.listen(process.env.PORT, () => {
   console.log(`Main bot started and listening on port ${process.env.PORT}`);
