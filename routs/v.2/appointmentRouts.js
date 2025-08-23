@@ -1,11 +1,11 @@
 const express = require("express");
-const appointmentController = require("../../controllers/v.2/appointmentController");
+const AppointmentController = require("../../controllers/v.2/AppointmentController");
 const router = express.Router();
 
-router.post("/appointment", appointmentController.create);
-router.get("/appointment", appointmentController.getAll);
-router.get("/appointment/:id", appointmentController.getOne);
-router.put("/appointment/:id", appointmentController.update);
-router.delete("/appointment/:id", appointmentController.delete);
+router.post("/appointment", AppointmentController.create);
+router.get("/appointment", AppointmentController.getAll);
+router.get("/appointment/:id", AppointmentController.getOne);
+router.put("/appointment/:id", AppointmentController.update);
+router.delete("/appointment/:id", AppointmentController.delete);
 
 module.exports = router;

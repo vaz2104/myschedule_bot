@@ -1,4 +1,4 @@
-const CompanyService = require("../../services/v.2/companyService");
+const CompanyService = require("../../services/v.2/CompanyService");
 
 class CompanyController {
   async create(req, res) {

@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const companyController = require("../../controllers/v.2/companyController");
+const CompanyController = require("../../controllers/v.2/CompanyController");
 
-router.post("/company", companyController.create);
-router.get("/company/", companyController.getAll);
-router.get("/company/:id", companyController.getOne);
-router.put("/company/:id", companyController.update);
-router.get("/company-relation/client", companyController.getClientRelation);
-router.get("/company-relation/worker", companyController.getWorkerRelation);
+router.post("/company", CompanyController.create);
+router.get("/company/", CompanyController.getAll);
+router.get("/company/:id", CompanyController.getOne);
+router.put("/company/:id", CompanyController.update);
+router.get("/company-relation/client", CompanyController.getClientRelation);
+router.get("/company-relation/worker", CompanyController.getWorkerRelation);
 
 module.exports = router;

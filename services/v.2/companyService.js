@@ -2,7 +2,7 @@ const TelegramBot = require("node-telegram-bot-api");
 const Bot = require("../../models/v.20/Bot");
 const ClientBotRelations = require("../../models/v.20/ClientBotRelations");
 const WorkerBotRelations = require("../../models/v.20/WorkerBotRelations");
-const botService = require("./botService");
+const BotService = require("./BotService");
 
 class CompanyService {
   async create(options) {
