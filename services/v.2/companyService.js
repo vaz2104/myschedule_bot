@@ -2,7 +2,6 @@ const TelegramBot = require("node-telegram-bot-api");
 const Bot = require("../../models/v.20/Bot");
 const ClientBotRelations = require("../../models/v.20/ClientBotRelations");
 const WorkerBotRelations = require("../../models/v.20/WorkerBotRelations");
-const BotService = require("./BotService");
 
 class CompanyService {
   async create(options) {
@@ -22,6 +21,14 @@ class CompanyService {
     }
 
     const newCompany = await Bot.create(options);
+
+    if (newCompany) {
+      await this.workerRelationCreate({
+        botId: newCompany?._id,
+        workerId: newCompany?.adminId,
+      });
+    }
+
     return newCompany;
   }
 
@@ -104,6 +111,40 @@ class CompanyService {
 
     const relation = await WorkerBotRelations.find(options);
     return relation;
+  }
+
+  async workerRelationCreate(options) {
+    let { botId, workerId } = options;
+
+    if (!botId || !workerId) {
+      throw new Error("Invalid data was sent"); // 400
+    }
+
+    const relation = await WorkerBotRelations.findOne(options);
+
+    if (relation) {
+      throw new Error("Relation is already registered"); // 400
+    }
+
+    const newRelation = await WorkerBotRelations.create(options);
+    return newRelation;
+  }
+
+  async clientRelationCreate(options) {
+    let { botId, telegramUserId } = options;
+
+    if (!botId || !telegramUserId) {
+      throw new Error("Invalid data was sent"); // 400
+    }
+
+    const relation = await ClientBotRelations.findOne(options);
+
+    if (relation) {
+      throw new Error("Relation is already registered"); // 400
+    }
+
+    const newRelation = await ClientBotRelations.create(options);
+    return newRelation;
   }
 }
 

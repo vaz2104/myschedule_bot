@@ -52,6 +52,24 @@ class CompanyController {
       res.status(500).json(error.message);
     }
   }
+
+  async workerRelationCreate(req, res) {
+    try {
+      const company = await CompanyService.workerRelationCreate(req.body);
+      res.json(company);
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  }
+
+  async clientRelationCreate(req, res) {
+    try {
+      const company = await CompanyService.clientRelationCreate(req.body);
+      res.json(company);
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  }
 }
 
 module.exports = new CompanyController();

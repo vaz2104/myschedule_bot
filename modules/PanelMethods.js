@@ -15,10 +15,8 @@ class PanelMethods {
       const { id: userId, username, first_name: firstName } = msg.from;
       const dataParts = msg.text.split(" ");
 
-      const telegramUserResponse = await TelegramUser.find({ userId });
-      let telegramUser = telegramUserResponse?.length
-        ? telegramUserResponse[0]
-        : null;
+      const telegramUserResponse = await TelegramUser.findOne({ userId });
+      let telegramUser = telegramUserResponse || null;
       let isNewUser = false;
 
       const botData = await bot.getMe();

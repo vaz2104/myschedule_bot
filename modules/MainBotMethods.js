@@ -13,7 +13,7 @@ class MainBotMethods {
       const { id: userId, username, first_name: firstName } = msg.from;
       const dataParts = msg.text.split(" ");
 
-      let telegramUser = await TelegramUser.find({ userId });
+      let telegramUser = await TelegramUser.findOne({ userId });
       let isNewUser = false;
 
       console.log(telegramUser);
@@ -21,7 +21,7 @@ class MainBotMethods {
       try {
         await bot.sendChatAction(userId, "typing");
 
-        if (!telegramUser.length) {
+        if (!telegramUser) {
           console.log("no telegram user");
 
           const newUserOptions = {
