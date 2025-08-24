@@ -1,4 +1,4 @@
-const ServiceService = require("../../services/v.2/serviceService");
+const ServiceService = require("../../services/v.2/ServiceService");
 
 class ServicesController {
   async create(req, res) {
