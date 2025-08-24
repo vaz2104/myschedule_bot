@@ -33,7 +33,7 @@ class CompanyService {
   }
 
   async getAll(options) {
-    if (!options) {
+    if (!Object.keys(options).length) {
       throw new Error("Invalid data was sent"); // 400
     }
 
@@ -57,7 +57,7 @@ class CompanyService {
         data.avatar = await bot.getFileLink(avatars?.photos[0][0]?.file_id);
       }
 
-      botsData.push({ _id: botItem._id, ...data });
+      botsData.push({ _id: botItem._id, ...data, m: "323" });
     }
 
     return botsData;
@@ -76,8 +76,12 @@ class CompanyService {
     if (!bot) return [];
 
     const telegramData = await bot.getMe();
+    // console.log(botData);
 
-    return { ...botData, ...telegramData };
+    return {
+      ...JSON.parse(JSON.stringify(botData)),
+      ...JSON.parse(JSON.stringify(telegramData)),
+    };
   }
 
   async update(id, options) {
@@ -109,7 +113,9 @@ class CompanyService {
       throw new Error("Invalid data was sent"); // 400
     }
 
-    const relation = await WorkerBotRelations.find(options);
+    const relation = await WorkerBotRelations.find(options).populate([
+      "workerId",
+    ]);
     return relation;
   }
 

@@ -12,7 +12,7 @@ const BotSchema = new Schema({
   },
   plan: {
     type: String,
-    default: "",
+    default: "free", // basic | business | businessPlus
   },
   themePalette: {
     type: String,
