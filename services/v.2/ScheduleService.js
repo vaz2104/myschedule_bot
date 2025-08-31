@@ -2,6 +2,7 @@ const { json } = require("body-parser");
 const formatDate = require("../../lib/formatDate");
 const WorkerBotSchedule = require("../../models/v.20/WorkerBotSchedule");
 const AppointmentRelations = require("../../models/v.20/AppointmentRelations");
+const daysInMonth = require("../../lib/daysInMonth");
 
 class ScheduleService {
   async create(options) {
@@ -23,13 +24,20 @@ class ScheduleService {
       throw new Error("Invalid data was sent"); // 400
     }
 
+    // console.log(options);
+
     const query = JSON.parse(JSON.stringify(options));
 
-    if (options?.startDate && options?.endDate) {
+    if (options?.startDate) {
+      delete query.startDate;
       query.date = {
-        $gte: `${options?.startDate}T00:00:00.000Z`,
-        $lte: `${options?.endDate}T00:00:00.000Z`,
+        $gte: `${options?.startDate}`,
       };
+
+      if (options?.endDate) {
+        delete query.endDate;
+        query.date.$lte = `${options?.endDate}`;
+      }
     }
 
     if (options?.date) {
@@ -38,12 +46,17 @@ class ScheduleService {
       };
     }
 
-    const searchDate = new Date();
-    query.date = {
-      $gte: `${searchDate.getFullYear()}-${searchDate.getMonth() + 1}-1`,
-    };
+    if (!options?.date && !options?.startDate && !options?.endDate) {
+      const searchDate = new Date();
+      query.date = {
+        $gte: `${searchDate.getFullYear()}-${searchDate.getMonth() + 1}-1`,
+        $lte: `${searchDate.getFullYear()}-${
+          searchDate.getMonth() + 1
+        }-${daysInMonth(searchDate.getMonth() + 1, searchDate.getFullYear())}`,
+      };
+    }
 
-    console.log(query);
+    // console.log(query);
     const schedule = await WorkerBotSchedule.find(query);
     const ids = [];
     schedule.forEach((el) => ids.push(el._id));
@@ -55,12 +68,12 @@ class ScheduleService {
     const combinedAnswer = [];
 
     schedule.forEach((el) => {
-      const relation = relations.filter(
+      const filteredRelations = relations.filter(
         (rel) => rel.scheduleId.toString() === el._id.toString()
       );
 
       const newAnswer = { ...el.toJSON() };
-      if (relation.length) newAnswer.relation = relation[0];
+      newAnswer.relations = filteredRelations;
       combinedAnswer.push(newAnswer);
     });
 

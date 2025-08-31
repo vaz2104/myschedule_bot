@@ -10,9 +10,9 @@ class AppointmentController {
     }
   }
 
-  async getAll(req, res) {
+  async getMany(req, res) {
     try {
-      const appointments = await AppointmentService.getAll(req.query);
+      const appointments = await AppointmentService.getMany(req.query);
       res.json(appointments);
     } catch (error) {
       res.status(500).json(error.message);

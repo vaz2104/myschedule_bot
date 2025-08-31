@@ -2,6 +2,8 @@ const TelegramBot = require("node-telegram-bot-api");
 const formatDate = require("../lib/formatDate");
 const Bot = require("../models/v.20/Bot");
 const CompanyService = require("../services/v.2/CompanyService");
+const AppointmentRelations = require("../models/v.20/AppointmentRelations");
+// const AppointmentService = require("../services/v.2/AppointmentService");
 
 class TelegramNotifications {
   async newServiceDiscount(oldServiceOptions, newServiceOptions) {
@@ -37,6 +39,60 @@ class TelegramNotifications {
       })
     ).then(() => {
       console.log("Notifications have been sent");
+    });
+  }
+
+  async newAppointment(appointment) {
+    const botData = await Bot.findById(appointment?.botId).populate([
+      "adminId",
+    ]);
+
+    const appointmentData = await AppointmentRelations.findById(
+      appointment?._id
+    ).populate(["botId", "serviceId", "clientId", "scheduleId"]);
+
+    let bot = new TelegramBot(process.env.BOT_TOKEN, {
+      polling: false,
+    });
+
+    if (!bot) {
+      return;
+    }
+
+    // console.log(appointmentData);
+
+    const appointments = JSON.parse(
+      JSON.stringify(appointmentData?.scheduleId?.schedule)
+    );
+
+    const message = `Привіт👋 У Вас новий запис на прийом 🎉\n`;
+
+    const clientInfo = `\n<b>Клієнт:</b>\n${
+      appointmentData?.clientId?.firstName
+    } ${
+      appointmentData?.clientId?.username
+        ? `@${appointmentData?.clientId?.username}`
+        : ""
+    }\n`;
+
+    const scheduleInfo = `\n<b>Зарезервоване місце:</b>\n${formatDate(
+      appointmentData?.scheduleId?.date
+    )}, ${appointments[appointmentData?.appointmentKey]}\n`;
+
+    const serviceInfo = `\n<b>Обрана послуга:</b>\n${
+      appointmentData?.serviceId?.service
+    }\n${
+      appointmentData?.serviceId?.priceWithSale
+        ? `Активна знижка: <b>${appointmentData?.serviceId?.priceWithSale}</b> <s>${appointmentData?.serviceId?.price}</s>`
+        : `${appointmentData?.serviceId?.price}`
+    }`;
+
+    const fullMessage = `${message}${clientInfo}${scheduleInfo}${
+      appointmentData?.serviceId ? serviceInfo : ""
+    }`;
+
+    await bot.sendMessage(botData?.adminId?.userId, fullMessage, {
+      parse_mode: "HTML",
     });
   }
 }

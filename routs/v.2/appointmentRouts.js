@@ -3,7 +3,7 @@ const AppointmentController = require("../../controllers/v.2/AppointmentControll
 const router = express.Router();
 
 router.post("/appointment", AppointmentController.create);
-router.get("/appointment", AppointmentController.getAll);
+router.get("/appointment", AppointmentController.getMany);
 router.get("/appointment/:id", AppointmentController.getOne);
 router.put("/appointment/:id", AppointmentController.update);
 router.delete("/appointment/:id", AppointmentController.delete);

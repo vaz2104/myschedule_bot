@@ -14,6 +14,10 @@ const AppointmentRelationsSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "WorkerBotSchedule",
   },
+  appointmentKey: {
+    type: String,
+    default: "",
+  },
   serviceId: {
     type: Schema.Types.ObjectId,
     ref: "CompanyService",

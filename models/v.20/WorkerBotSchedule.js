@@ -14,9 +14,9 @@ const WorkerBotScheduleSchema = new Schema({
     type: Date,
     default: "",
   },
-  hours: {
-    type: String,
-    default: "",
+  schedule: {
+    type: Map,
+    of: String,
   },
   timestamp: {
     type: Number,

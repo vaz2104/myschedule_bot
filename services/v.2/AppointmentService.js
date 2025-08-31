@@ -1,19 +1,26 @@
+const formatDate = require("../../lib/formatDate");
 const AppointmentRelations = require("../../models/v.20/AppointmentRelations");
+const TelegramNotifications = require("../../modules/TelegramNotifications");
 
 class AppointmentService {
   async create(options) {
-    // let { company_id, client_id, schedule_id } = options;
-    // if (!company_id || !client_id || !schedule_id) {
-    //   throw new Error("Invalid data was sent"); // 400
-    // }
-    // const appointment = await AppointmentRelations.create(options);
-    // return appointment;
-  }
-
-  async getAll(query) {
-    if (!query) {
+    if (!Object.keys(options).length) {
       throw new Error("Invalid data was sent"); // 400
     }
+
+    const appointment = await AppointmentRelations.create(options);
+    await TelegramNotifications.newAppointment(
+      JSON.parse(JSON.stringify(appointment))
+    );
+    return appointment;
+  }
+
+  async getMany(options) {
+    if (!Object.keys(options).length) {
+      throw new Error("Invalid data was sent"); // 400
+    }
+
+    const query = JSON.parse(JSON.stringify(options));
 
     const appointments = await AppointmentRelations.find(query)
       .populate(["serviceId", "clientId", "scheduleId"])
@@ -27,7 +34,12 @@ class AppointmentService {
     if (!id) {
       throw new Error("Invalid data was sent"); // 400
     }
-    const appointment = await AppointmentRelations.findById(id);
+    const appointment = await AppointmentRelations.findById(id).populate([
+      "botId",
+      "serviceId",
+      "clientId",
+      "scheduleId",
+    ]);
     return appointment;
   }
 
