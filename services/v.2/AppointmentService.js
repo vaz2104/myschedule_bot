@@ -63,7 +63,16 @@ class AppointmentService {
       throw new Error("Invalid data was sent"); // 400
     }
 
+    const appointmentData = await AppointmentRelations.findById(id).populate([
+      "botId",
+      "serviceId",
+      "clientId",
+      "scheduleId",
+    ]);
+
     const appointment = await AppointmentRelations.findByIdAndDelete(id);
+
+    await TelegramNotifications.cancelAppointment(appointmentData);
 
     return appointment;
   }

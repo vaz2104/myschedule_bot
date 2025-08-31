@@ -65,9 +65,9 @@ class TelegramNotifications {
       JSON.stringify(appointmentData?.scheduleId?.schedule)
     );
 
-    const message = `Привіт👋 У Вас новий запис на прийом 🎉\n`;
+    const message = `Новий запис на прийом 🎉\n`;
 
-    const clientInfo = `\n<b>Клієнт:</b>\n${
+    const clientInfo = `<b>Клієнт:</b>\n${
       appointmentData?.clientId?.firstName
     } ${
       appointmentData?.clientId?.username
@@ -75,11 +75,11 @@ class TelegramNotifications {
         : ""
     }\n`;
 
-    const scheduleInfo = `\n<b>Зарезервоване місце:</b>\n${formatDate(
+    const scheduleInfo = `<b>Зарезервоване місце:</b>\n${formatDate(
       appointmentData?.scheduleId?.date
     )}, ${appointments[appointmentData?.appointmentKey]}\n`;
 
-    const serviceInfo = `\n<b>Обрана послуга:</b>\n${
+    const serviceInfo = `<b>Обрана послуга:</b>\n${
       appointmentData?.serviceId?.service
     }\n${
       appointmentData?.serviceId?.priceWithSale
@@ -90,6 +90,47 @@ class TelegramNotifications {
     const fullMessage = `${message}${clientInfo}${scheduleInfo}${
       appointmentData?.serviceId ? serviceInfo : ""
     }`;
+
+    await bot.sendMessage(botData?.adminId?.userId, fullMessage, {
+      parse_mode: "HTML",
+    });
+  }
+
+  async cancelAppointment(appointmentData) {
+    const botData = await Bot.findById(appointmentData?.botId?._id).populate([
+      "adminId",
+    ]);
+
+    // console.log(botData);
+    // console.log(appointmentData);
+
+    let bot = new TelegramBot(process.env.BOT_TOKEN, {
+      polling: false,
+    });
+
+    if (!bot) {
+      return;
+    }
+
+    const appointments = JSON.parse(
+      JSON.stringify(appointmentData?.scheduleId?.schedule)
+    );
+
+    const message = `Скасовано запис на прийом 🚫\n`;
+
+    const clientInfo = `<b>Клієнт:</b>\n${
+      appointmentData?.clientId?.firstName
+    } ${
+      appointmentData?.clientId?.username
+        ? `@${appointmentData?.clientId?.username}`
+        : ""
+    }\n`;
+
+    const scheduleInfo = `<b>Зарезервоване місце:</b>\n${formatDate(
+      appointmentData?.scheduleId?.date
+    )}, ${appointments[appointmentData?.appointmentKey]}\n`;
+
+    const fullMessage = `${message}${clientInfo}${scheduleInfo}`;
 
     await bot.sendMessage(botData?.adminId?.userId, fullMessage, {
       parse_mode: "HTML",
