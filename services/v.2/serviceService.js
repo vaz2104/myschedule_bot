@@ -31,7 +31,7 @@ class ServiceService {
         saleEndDay: { $lt: today },
       },
       {
-        sale: "",
+        priceWithSale: "",
         saleEndDay: null,
       }
     ).exec();
