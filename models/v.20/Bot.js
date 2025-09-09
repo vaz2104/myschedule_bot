@@ -14,6 +14,10 @@ const BotSchema = new Schema({
     type: String,
     default: "free", // basic | business | businessPlus
   },
+  planEndDay: {
+    type: Date,
+    default: "",
+  },
   themePalette: {
     type: String,
     default: "",

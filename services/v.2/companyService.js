@@ -86,11 +86,11 @@ class CompanyService {
 
   async update(id, options) {
     let { botToken } = options;
-    if (!id || !botToken) {
-      throw new Error("Invalid data was sent"); // 400
-    }
+    // if (!id || !botToken) {
+    //   throw new Error("Invalid data was sent"); // 400
+    // }
 
-    const updatedCompany = await Company.findByIdAndUpdate(id, options, {
+    const updatedCompany = await Bot.findByIdAndUpdate(id, options, {
       new: true,
     });
 
