@@ -50,14 +50,10 @@ class ServiceService {
     return service;
   }
 
-  async update(serviceId, options) {
+  async update(serviceId, query) {
     if (!serviceId) {
       throw new Error("Invalid data was sent"); // 400
     }
-
-    const { query, hasNotification } = options;
-
-    const oldServiceState = await CompanyService.findById(serviceId);
 
     if (query?.saleEndDay) {
       const saleDate = new Date(query?.saleEndDay);
@@ -71,19 +67,6 @@ class ServiceService {
       query,
       { new: true }
     );
-
-    // const isDiscountUpdated =
-    //   formatDate(oldServiceState?.saleEndDay) !==
-    //     formatDate(options?.saleEndDay) ||
-    //   oldServiceState?.priceWithSale != options?.priceWithSale;
-
-    if (hasNotification) {
-      await TelegramNotifications.newServiceDiscount(
-        oldServiceState,
-        updatedService
-      );
-    }
-
     return updatedService;
   }
 
