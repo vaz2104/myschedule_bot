@@ -1,5 +1,6 @@
 const formatDate = require("../../lib/formatDate");
-const CompanyService = require("../../models/v.20/CompanyService");
+const dateUkrainTZ = require("../../lib/getCurrentDateUkrainTimeZone");
+const ClientBotRelations = require("../../models/v.20/ClientBotRelations");
 const Notification = require("../../models/v.20/Notification");
 const NotificationUserRelation = require("../../models/v.20/NotificationUserRelation");
 const TelegramNotifications = require("../../modules/TelegramNotifications");
@@ -10,15 +11,100 @@ class ServiceService {
       throw new Error("Invalid data was sent"); // 400
     }
 
-    const newService = await Notification.create(options);
+    // {
+    //   notification: {
+    //     botId: '68aa1605ce6fe23eb6c235d1',
+    //     author: '68a4ca8db05dc37d70b96ce3'
+    //   },
+    //   recipientRole: 'client',
+    //   type: 'newDiscount'
+    // }
 
-    // author;
-    // message;
-    // metadata;
+    let recipients = options?.recipient;
 
-    // recipient;
+    switch (options?.type) {
+      case "newDiscount":
+        console.log("newDiscount");
+        const { _id, service, price, priceWithSale, saleEndDay } =
+          options?.meta;
 
-    return newService;
+        options.notification.message = `У нас нова знижка на послугу`;
+        options.notification.metadata = JSON.stringify({
+          notificationType: options?.type,
+          messageOptions: {
+            serviceId: _id,
+            service,
+            price,
+            priceWithSale,
+            saleEndDay,
+          },
+        });
+
+        const clients = await ClientBotRelations.find(
+          { botId: options?.notification?.botId },
+          { _id: 1 }
+        );
+
+        const clientsIDs = [];
+        clients.forEach((client) => {
+          clientsIDs.push(client?._id);
+        });
+
+        recipients = clientsIDs;
+
+        break;
+      case "clientNewAppointment":
+        console.log("clientNewAppointment");
+
+        break;
+      case "clientCancelAppointment":
+        console.log("clientCancelAppointment");
+
+        break;
+      case "adminCancelAppointment":
+        console.log("adminCancelAppointment");
+
+        break;
+    }
+    // console.log(recipients);
+    // console.log(options);
+    // return false;
+    const newNotification = await Notification.create(options?.notification);
+
+    if (newNotification?._id) {
+      if (recipients && Array.isArray(recipients)) {
+        await Promise.all(
+          recipients.map(async (id) => {
+            const relation = await NotificationUserRelation.create({
+              notification: newNotification?._id,
+              recipient: id,
+              recipientRole: options?.recipientRole,
+            });
+
+            if (relation?._id) {
+              switch (options?.type) {
+                case "newDiscount":
+                  await TelegramNotifications.newServiceDiscount(options?.meta);
+                  break;
+                case "clientNewAppointment":
+                  console.log("clientNewAppointment");
+                  break;
+                case "clientCancelAppointment":
+                  console.log("clientCancelAppointment");
+                  break;
+                case "adminCancelAppointment":
+                  console.log("adminCancelAppointment");
+                  break;
+              }
+            }
+          })
+        ).then(() => {
+          console.log("Notifications have been sent");
+        });
+      }
+    }
+
+    return newNotification;
   }
 
   async getAll(id) {
@@ -26,17 +112,13 @@ class ServiceService {
       recipient: id,
     })
       .sort([["timestamp", -1]])
-      .populate(["notification"])
+      .populate(["notification", "recipient"])
       .populate({
         path: "notification",
         populate: [
           {
             path: "author",
-            model: "User",
-          },
-          {
-            path: "realEstate",
-            model: "RealEstate",
+            model: "TelegramUser",
           },
         ],
       });
@@ -50,61 +132,6 @@ class ServiceService {
     );
 
     return objects;
-  }
-
-  async getOne(id) {
-    if (!id) {
-      throw new Error("Invalid data was sent"); // 400
-    }
-
-    const service = await CompanyService.findById(id);
-    return service;
-  }
-
-  async update(serviceId, options) {
-    if (!serviceId) {
-      throw new Error("Invalid data was sent"); // 400
-    }
-
-    const { query, hasNotification } = options;
-
-    const oldServiceState = await CompanyService.findById(serviceId);
-
-    if (query?.saleEndDay) {
-      const saleDate = new Date(query?.saleEndDay);
-      const filteredDate = `${formatDate(saleDate)}T00:00:00.000Z`;
-
-      query.saleEndDay = filteredDate;
-    }
-
-    const updatedService = await CompanyService.findByIdAndUpdate(
-      serviceId,
-      query,
-      { new: true }
-    );
-
-    // const isDiscountUpdated =
-    //   formatDate(oldServiceState?.saleEndDay) !==
-    //     formatDate(options?.saleEndDay) ||
-    //   oldServiceState?.priceWithSale != options?.priceWithSale;
-
-    if (hasNotification) {
-      await TelegramNotifications.newServiceDiscount(
-        oldServiceState,
-        updatedService
-      );
-    }
-
-    return updatedService;
-  }
-
-  async delete(serviceId) {
-    if (!serviceId) {
-      throw new Error("Invalid data was sent"); // 400
-    }
-
-    const deletedService = await CompanyService.findByIdAndDelete(serviceId);
-    return deletedService;
   }
 }
 

@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const dateUkrainTZ = require("../../lib/getCurrentDateUkrainTimeZone");
 
 const NotificationUserRelationSchema = new Schema({
   notification: {
@@ -8,6 +9,10 @@ const NotificationUserRelationSchema = new Schema({
   recipient: {
     type: Schema.Types.ObjectId,
     ref: "TelegramUser",
+  },
+  recipientRole: {
+    type: String,
+    default: "", // client | admin
   },
   isOpened: {
     type: Boolean,
@@ -19,7 +24,7 @@ const NotificationUserRelationSchema = new Schema({
   },
   createdAt: {
     type: Date,
-    default: "",
+    default: new Date(dateUkrainTZ),
   },
   timestamp: {
     type: Number,
