@@ -6,7 +6,7 @@ const AppointmentRelations = require("../models/v.20/AppointmentRelations");
 // const AppointmentService = require("../services/v.2/AppointmentService");
 
 class TelegramNotifications {
-  async newServiceDiscount(oldServiceOptions, newServiceOptions) {
+  async newServiceDiscount(newServiceOptions) {
     const { botId, service, price, priceWithSale, saleEndDay } =
       newServiceOptions;
 
