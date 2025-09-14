@@ -1,6 +1,4 @@
-const formatDate = require("../../lib/formatDate");
 const AppointmentRelations = require("../../models/v.20/AppointmentRelations");
-const TelegramNotifications = require("../../modules/TelegramNotifications");
 
 class AppointmentService {
   async create(options) {
@@ -9,9 +7,6 @@ class AppointmentService {
     }
 
     const appointment = await AppointmentRelations.create(options);
-    await TelegramNotifications.newAppointment(
-      JSON.parse(JSON.stringify(appointment))
-    );
     return appointment;
   }
 
@@ -63,16 +58,7 @@ class AppointmentService {
       throw new Error("Invalid data was sent"); // 400
     }
 
-    const appointmentData = await AppointmentRelations.findById(id).populate([
-      "botId",
-      "serviceId",
-      "clientId",
-      "scheduleId",
-    ]);
-
     const appointment = await AppointmentRelations.findByIdAndDelete(id);
-
-    await TelegramNotifications.cancelAppointment(appointmentData);
 
     return appointment;
   }
