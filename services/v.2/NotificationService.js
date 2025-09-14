@@ -4,27 +4,32 @@ const ClientBotRelations = require("../../models/v.20/ClientBotRelations");
 const Notification = require("../../models/v.20/Notification");
 const NotificationUserRelation = require("../../models/v.20/NotificationUserRelation");
 const TelegramNotifications = require("../../modules/TelegramNotifications");
+const CompanyService = require("./CompanyService");
 
 class ServiceService {
-  async create(options) {
+  async create(query) {
+    let options = JSON.parse(JSON.stringify(query));
     if (!options) {
       throw new Error("Invalid data was sent"); // 400
     }
 
-    // {
-    //   notification: {
-    //     botId: '68aa1605ce6fe23eb6c235d1',
-    //     author: '68a4ca8db05dc37d70b96ce3'
-    //   },
-    //   recipientRole: 'client',
-    //   type: 'newDiscount'
-    // }
-
     let recipients = options?.recipient;
+
+    if (
+      options?.type === "clientNewAppointment" ||
+      options?.type === "clientCancelAppointment"
+    ) {
+      if (!options?.recipient) {
+        const companyData = await CompanyService.getOne(
+          options.notification.botId
+        );
+        recipients = [companyData?.adminId];
+        options.recipient = companyData?.adminId;
+      }
+    }
 
     switch (options?.type) {
       case "newDiscount":
-        console.log("newDiscount");
         const { _id, service, price, priceWithSale, saleEndDay } =
           options?.meta;
 
@@ -54,21 +59,57 @@ class ServiceService {
 
         break;
       case "clientNewAppointment":
-        console.log("clientNewAppointment");
+        options.notification.message = `Новий запис на прийом!`;
+
+        options.notification.metadata = JSON.stringify({
+          notificationType: options?.type,
+          messageOptions: {
+            date: options?.meta?.scheduleId?.date,
+            time: options?.meta?.scheduleId?.schedule[
+              options?.meta?.appointmentKey
+            ],
+            firstName: options?.meta?.clientId?.firstName,
+            username: options?.meta?.clientId?.username,
+            service: options?.meta?.serviceId?.service,
+            priceWithSale: options?.meta?.serviceId?.priceWithSale,
+            price: options?.meta?.serviceId?.price,
+          },
+        });
 
         break;
       case "clientCancelAppointment":
-        console.log("clientCancelAppointment");
+        options.notification.message = `Запис скасовано!`;
 
+        options.notification.metadata = JSON.stringify({
+          notificationType: options?.type,
+          messageOptions: {
+            date: options?.meta?.scheduleId?.date,
+            time: options?.meta?.scheduleId?.schedule[
+              options?.meta?.appointmentKey
+            ],
+            firstName: options?.meta?.clientId?.firstName,
+            username: options?.meta?.clientId?.username,
+          },
+        });
         break;
       case "adminCancelAppointment":
-        console.log("adminCancelAppointment");
+        options.notification.message = `Ваш запис скасовано!`;
 
+        options.notification.metadata = JSON.stringify({
+          notificationType: options?.type,
+          messageOptions: {
+            date: options?.meta?.scheduleId?.date,
+            time: options?.meta?.scheduleId?.schedule[
+              options?.meta?.appointmentKey
+            ],
+            firstName: options?.meta?.clientId?.firstName,
+            username: options?.meta?.clientId?.username,
+          },
+        });
         break;
     }
-    // console.log(recipients);
-    // console.log(options);
-    // return false;
+    console.log(options);
+
     const newNotification = await Notification.create(options?.notification);
 
     if (newNotification?._id) {
@@ -87,13 +128,17 @@ class ServiceService {
                   await TelegramNotifications.newServiceDiscount(options?.meta);
                   break;
                 case "clientNewAppointment":
-                  console.log("clientNewAppointment");
+                  await TelegramNotifications.newAppointment(options?.meta);
                   break;
                 case "clientCancelAppointment":
-                  console.log("clientCancelAppointment");
+                  await TelegramNotifications.clientCancelAppointment(
+                    options?.meta
+                  );
                   break;
                 case "adminCancelAppointment":
-                  console.log("adminCancelAppointment");
+                  await TelegramNotifications.adminCancelAppointment(
+                    options?.meta
+                  );
                   break;
               }
             }
@@ -107,10 +152,8 @@ class ServiceService {
     return newNotification;
   }
 
-  async getAll(id) {
-    const objects = await NotificationUserRelation.find({
-      recipient: id,
-    })
+  async getAll(query) {
+    const objects = await NotificationUserRelation.find(query)
       .sort([["timestamp", -1]])
       .populate(["notification", "recipient"])
       .populate({
@@ -125,7 +168,7 @@ class ServiceService {
 
     await NotificationUserRelation.updateMany(
       {
-        recipient: id,
+        recipient: query?.recipient,
         isOpened: false,
       },
       { isOpened: true, openedDate: new Date(dateUkrainTZ) }

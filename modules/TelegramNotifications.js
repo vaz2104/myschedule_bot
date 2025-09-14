@@ -3,16 +3,11 @@ const formatDate = require("../lib/formatDate");
 const Bot = require("../models/v.20/Bot");
 const CompanyService = require("../services/v.2/CompanyService");
 const AppointmentRelations = require("../models/v.20/AppointmentRelations");
-// const AppointmentService = require("../services/v.2/AppointmentService");
 
 class TelegramNotifications {
   async newServiceDiscount(newServiceOptions) {
     const { botId, service, price, priceWithSale, saleEndDay } =
       newServiceOptions;
-
-    // formatDate(oldServiceOptions?.saleEndDay) !==
-    //   formatDate(options?.saleEndDay) ||
-    //   oldServiceOptions?.priceWithSale != options?.priceWithSale;
 
     const message = `Привіт!\nУ нас нова знижка на послугу <b>"${service}"</b>!\nМи знизили ціну з <b>${price} грн</b> до <b>${priceWithSale} грн</b>!\nАкція діє до <b>${formatDate(
       saleEndDay
@@ -96,13 +91,40 @@ class TelegramNotifications {
     });
   }
 
-  async cancelAppointment(appointmentData) {
+  async adminCancelAppointment(appointmentData) {
     const botData = await Bot.findById(appointmentData?.botId?._id).populate([
       "adminId",
     ]);
 
-    // console.log(botData);
-    // console.log(appointmentData);
+    let bot = new TelegramBot(process.env.BOT_TOKEN, {
+      polling: false,
+    });
+
+    if (!bot) {
+      return;
+    }
+
+    const appointments = JSON.parse(
+      JSON.stringify(appointmentData?.scheduleId?.schedule)
+    );
+
+    const message = `Скасовано запис на прийом 🚫\n`;
+
+    const scheduleInfo = `<b>Адміністратор скасував Ваше зарезервоване місце:</b>\n${formatDate(
+      appointmentData?.scheduleId?.date
+    )}, ${appointments[appointmentData?.appointmentKey]}\n`;
+
+    const fullMessage = `${message}${scheduleInfo}`;
+
+    await bot.sendMessage(botData?.adminId?.userId, fullMessage, {
+      parse_mode: "HTML",
+    });
+  }
+
+  async clientCancelAppointment(appointmentData) {
+    const botData = await Bot.findById(appointmentData?.botId?._id).populate([
+      "adminId",
+    ]);
 
     let bot = new TelegramBot(process.env.BOT_TOKEN, {
       polling: false,

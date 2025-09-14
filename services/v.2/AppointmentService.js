@@ -7,7 +7,7 @@ class AppointmentService {
     }
 
     const appointment = await AppointmentRelations.create(options);
-    return appointment;
+    return this.getOne(appointment?._id);
   }
 
   async getMany(options) {
