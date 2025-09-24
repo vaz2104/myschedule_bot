@@ -1,20 +1,51 @@
 const InviteLink = require("../models/v.20/InviteLink");
+const TelegramUser = require("../models/v.20/TelegramUser");
 const WorkerBotRelations = require("../models/v.20/WorkerBotRelations");
+const AuthService = require("../services/v.2/AuthService");
 
 class PanelCallbacks {
-  async generateAuthData(bot, userObject) {
-    const message = ``;
-    await bot.sendMessage(userObject.id, message, {
+  async generateAuthData(bot, options) {
+    const { chatId, username } = options;
+
+    const telegramUserResponse = await TelegramUser.findOne({
+      userId: chatId,
+    });
+
+    if (!telegramUserResponse?._id) {
+      await bot.sendMessage(
+        chatId,
+        `Помилка запиту!\nБудь ласка, повторіть спробу знову`
+      );
+      return false;
+    }
+
+    const authData = await AuthService.createKey({
+      telegramUserId: telegramUserResponse?._id,
+    });
+
+    if (!authData?._id) {
+      await bot.sendMessage(chatId, "Помилка авторизації", {
+        parse_mode: "HTML",
+      });
+      return;
+    }
+
+    const message = `Ваші дані для одноразового входу:\n<b>Логін:</b> ${username}\n<b>Пароль:</b> ${authData.key}`;
+    await bot.sendMessage(chatId, message, {
       parse_mode: "HTML",
     });
   }
 
-  async inviteWorker(commandData, bot, options) {
-    // console.log(commandData, bot, options);
+  async inviteWorker(bot, options, commandData) {
+    const { chatId } = options;
 
-    if (!commandData) {
+    const telegramUserResponse = await TelegramUser.findOne({
+      userId: chatId,
+    });
+
+    if (!commandData || !telegramUserResponse?._id) {
       await bot.sendMessage(
-        options.chatUserId,
+        chatId,
         `Помилка запиту!\nБудь ласка, повторіть спробу знову`
       );
       return false;
@@ -24,18 +55,16 @@ class PanelCallbacks {
 
     if (!ativeInviteSession?._id) {
       await bot.sendMessage(
-        options.chatUserId,
+        chatId,
         `Помилка запиту!\nСхоже, Ваше посилання не активне`
       );
       return false;
     }
 
     const hasWorkerRelation = await WorkerBotRelations.findOne({
-      workerId: options.telegramUserId,
+      workerId: telegramUserResponse?._id,
       botId: ativeInviteSession?.botId,
     });
-
-    // console.log("hasTeacherRelation", hasTeacherRelation);
 
     if (hasWorkerRelation) {
       await bot.sendMessage(
@@ -46,28 +75,17 @@ class PanelCallbacks {
     }
 
     const newWorker = await WorkerBotRelations.create({
-      workerId: options.telegramUserId,
+      workerId: telegramUserResponse?._id,
       botId: ativeInviteSession?.botId,
     });
 
     if (newWorker) {
       await InviteLink.findByIdAndDelete(ativeInviteSession._id);
       await bot.sendMessage(
-        options.chatUserId,
+        chatId,
         `Вітаємо, Ви успішно авторизувалися!\nТепер у Вас є доступ до платформи.`,
         {
           parse_mode: "HTML",
-          // reply_markup: {
-          //   inline_keyboard: [
-          //     [
-          //       {
-          //         text: "Увійти в платформу",
-          //         callback_data: "generateAuthData",
-          //       },
-          //     ],
-          //   ],
-          //   one_time_keyboard: true,
-          // },
         }
       );
     }

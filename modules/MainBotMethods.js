@@ -1,38 +1,35 @@
 const TelegramUser = require("../models/v.20/TelegramUser");
+const Helpers = require("./Helpers");
 
 class MainBotMethods {
   async initCommand(bot) {
     bot.on("message", async (msg) => {
       const { id: chatId } = msg.from;
-      bot.sendMessage(chatId, `Souy said "${msg.text}!!"`);
+      // bot.sendMessage(chatId, `Souy said "${msg.text}!!"`);
 
       return false;
     });
 
     bot.onText(/\/start/, async function (msg) {
-      const { id: userId, username, first_name: firstName } = msg.from;
+      const { id: chatId, username, first_name: firstName } = msg.from;
       const dataParts = msg.text.split(" ");
 
-      let telegramUser = await TelegramUser.findOne({ userId });
+      let telegramUser = await TelegramUser.findOne({ userId: chatId });
       let isNewUser = false;
 
-      console.log(telegramUser);
-
       try {
-        await bot.sendChatAction(userId, "typing");
+        await bot.sendChatAction(chatId, "typing");
 
         if (!telegramUser) {
           console.log("no telegram user");
 
           const newUserOptions = {
             username: username || firstName || "",
-            userId,
+            userId: chatId,
             firstName,
           };
 
-          console.log(newUserOptions);
-
-          const avatars = await bot.getUserProfilePhotos(userId);
+          const avatars = await bot.getUserProfilePhotos(chatId);
 
           if (avatars?.photos[0]) {
             newUserOptions.photoUrl = await bot.getFileLink(
@@ -44,35 +41,52 @@ class MainBotMethods {
           isNewUser = true;
         }
 
+        const keyboard = [
+          [
+            {
+              text: "Згенерувати дані",
+              callback_data: "generateAuthData",
+            },
+          ],
+        ];
+
+        const authMessage = `\n\nЩоб відкрити адмін панель натисніть кнопку <b>"Панель"</b> \nДля входу в браузері згенеруйте дані для доступу`;
+
         if (isNewUser) {
           await bot.sendMessage(
-            userId,
+            chatId,
             `Привіт ${
               username ? `@${username}` : `<b>${firstName}</b>`
-            }!\nВітаємо в <b>MYSCHEDULE</b>`,
+            }!\nВітаємо в <b>MYSCHEDULE</b>${authMessage}`,
             {
               parse_mode: "HTML",
+              reply_markup: {
+                inline_keyboard: keyboard,
+              },
             }
           );
         } else {
           if (!dataParts[1]) {
             await bot.sendMessage(
-              userId,
-              `Привіт ${
+              chatId,
+              `${
                 username ? `@${username}` : `<b>${firstName}</b>`
-              }!\nРаді знову бачити!`,
+              }, раді знову бачити!${authMessage}`,
               {
                 parse_mode: "HTML",
+                reply_markup: {
+                  inline_keyboard: keyboard,
+                },
               }
             );
           }
         }
 
         if (dataParts.length > 1) {
-          // PanelHelpers.checkCommand(dataParts[1], bot, {
-          //   telegramUserId: telegramUser._id,
-          //   chatUserId: userId,
-          // });
+          Helpers.callbacksSwitcher(dataParts[1], bot, {
+            chatId,
+            username,
+          });
           return;
         }
 
@@ -81,7 +95,7 @@ class MainBotMethods {
         console.log(error);
 
         await bot.sendMessage(
-          userId,
+          chatId,
           "Вибачте, сталася помилка! Повторіть спробу знову!"
         );
       }
@@ -91,20 +105,9 @@ class MainBotMethods {
   async callbackListener(bot) {
     bot.on("callback_query", async (callbackData) => {
       const { data } = callbackData;
-      const userObject = callbackData.from;
+      const { id, username } = callbackData.from;
 
-      // userObject
-      //   {
-      //     id: ,
-      //     is_bot: false,
-      //     first_name: '',
-      //     username: '',
-      //     language_code: 'uk'
-      //   }
-
-      // PanelHelpers.checkCallbacks(data, bot, {
-      //   userObject,
-      // });
+      Helpers.callbacksSwitcher(data, bot, { chatId: id, username });
     });
   }
 }
