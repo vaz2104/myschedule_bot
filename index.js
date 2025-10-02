@@ -14,6 +14,7 @@ const appointmentRouts = require("./routs/v.2/appointmentRouts");
 const authRouts = require("./routs/v.2/authRouts");
 const scheduleRouts = require("./routs/v.2/scheduleRouts");
 const notificationRouts = require("./routs/v.2/notificationRouts");
+const workerRouts = require("./routs/v.2/workerRouts");
 
 const app = express();
 
@@ -64,6 +65,7 @@ app.use("/api", appointmentRouts);
 app.use("/api", authRouts);
 app.use("/api", scheduleRouts);
 app.use("/api", notificationRouts);
+app.use("/api", workerRouts);
 
 app.listen(process.env.PORT, () => {
   console.log(`Main bot started and listening on port ${process.env.PORT}`);
