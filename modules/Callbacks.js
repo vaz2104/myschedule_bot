@@ -30,7 +30,7 @@ class PanelCallbacks {
       return;
     }
 
-    const message = `Ваші дані для одноразового входу:\n<b>Логін:</b> ${username}\n<b>Пароль:</b> ${authData.key}`;
+    const message = `Ваші дані для одноразового входу:\n<b>Логін:</b> ${telegramUserResponse?.username}\n<b>Пароль:</b> ${authData.key}`;
     await bot.sendMessage(chatId, message, {
       parse_mode: "HTML",
     });
