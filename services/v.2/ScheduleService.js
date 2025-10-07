@@ -24,8 +24,6 @@ class ScheduleService {
       throw new Error("Invalid data was sent"); // 400
     }
 
-    // console.log(options);
-
     const query = JSON.parse(JSON.stringify(options));
 
     if (options?.startDate) {
@@ -56,8 +54,7 @@ class ScheduleService {
       };
     }
 
-    // console.log(query);
-    const schedule = await WorkerBotSchedule.find(query);
+    const schedule = await WorkerBotSchedule.find(query).populate(["workerId"]);
     const ids = [];
     schedule.forEach((el) => ids.push(el._id));
 
