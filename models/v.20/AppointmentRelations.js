@@ -10,6 +10,10 @@ const AppointmentRelationsSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "TelegramUser",
   },
+  workerId: {
+    type: Schema.Types.ObjectId,
+    ref: "TelegramUser",
+  },
   scheduleId: {
     type: Schema.Types.ObjectId,
     ref: "WorkerBotSchedule",
