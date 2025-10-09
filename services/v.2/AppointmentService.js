@@ -25,6 +25,30 @@ class AppointmentService {
     return appointments;
   }
 
+  async getClients(options) {
+    if (!Object.keys(options).length) {
+      throw new Error("Invalid data was sent"); // 400
+    }
+
+    const query = JSON.parse(JSON.stringify(options));
+    const clientsIds = [];
+    const clients = [];
+    const appointments = await AppointmentRelations.find(query, {
+      clientId: 1,
+    }).populate(["clientId"]);
+
+    if (appointments?.length) {
+      appointments.forEach((client) => {
+        if (!clientsIds.includes(client?.clientId?._id)) {
+          clientsIds.push(client?.clientId?._id);
+          clients.push(client);
+        }
+      });
+    }
+
+    return clients;
+  }
+
   async getOne(id) {
     if (!id) {
       throw new Error("Invalid data was sent"); // 400

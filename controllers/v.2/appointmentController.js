@@ -19,6 +19,15 @@ class AppointmentController {
     }
   }
 
+  async getClients(req, res) {
+    try {
+      const appointments = await AppointmentService.getClients(req.query);
+      res.json(appointments);
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  }
+
   async getOne(req, res) {
     try {
       const appointment = await AppointmentService.getOne(req.params?.id);
