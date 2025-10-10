@@ -1,6 +1,7 @@
 const TelegramBot = require("node-telegram-bot-api");
 const Bot = require("../../models/v.20/Bot");
 const WorkerBotRelations = require("../../models/v.20/WorkerBotRelations");
+const WorkerBotServices = require("../../models/v.20/WorkerBotServices");
 
 class WorkerService {
   async getBots(id) {
@@ -39,6 +40,38 @@ class WorkerService {
     });
 
     return relatedBots;
+  }
+
+  async getServices(query) {
+    const { botId, workerId } = query;
+    if (!botId || !workerId) {
+      throw new Error("Invalid data was sent"); // 400
+    }
+
+    const relation = await WorkerBotServices.findOne(query);
+    return relation?.services;
+  }
+
+  async setServices(options) {
+    const { botId, workerId } = options;
+    if (!botId || !workerId) {
+      throw new Error("Invalid data was sent"); // 400
+    }
+
+    const relation = await WorkerBotServices.findOne({ botId, workerId });
+
+    if (!relation?._id) {
+      const newRelation = await WorkerBotServices.create(options);
+      return newRelation?.services;
+    }
+
+    const updatedRelation = await WorkerBotServices.findByIdAndUpdate(
+      relation?._id,
+      { services: options?.services },
+      { new: true }
+    );
+
+    return updatedRelation?.services;
   }
 }
 
