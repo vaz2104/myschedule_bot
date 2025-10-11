@@ -47,9 +47,9 @@ class WorkerService {
     if (!botId || !workerId) {
       throw new Error("Invalid data was sent"); // 400
     }
-
     const relation = await WorkerBotServices.findOne(query);
-    return relation?.services;
+
+    return relation ? relation?.services : null;
   }
 
   async setServices(options) {
