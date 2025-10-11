@@ -9,9 +9,7 @@ const WorkerBotServicesSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "TelegramUser",
   },
-  services: {
-    type: Array,
-  },
+  services: [{ type: Schema.Types.ObjectId, ref: "CompanyService" }],
   disabledServices: {
     type: Array,
   },
