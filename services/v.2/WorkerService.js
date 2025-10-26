@@ -80,6 +80,26 @@ class WorkerService {
 
     return updatedRelation;
   }
+
+  async getByService(options) {
+    console.log(options);
+
+    const { botId, serviceId } = options;
+
+    if (!botId || !serviceId) {
+      throw new Error("Invalid data was sent"); // 400
+    }
+    const relation = await WorkerBotServices.find(
+      {
+        services: { $in: [serviceId] },
+        disabledServices: { $nin: [serviceId] },
+        botId,
+      },
+      { workerId: 1 }
+    ).populate(["workerId"]);
+
+    return relation || null;
+  }
 }
 
 module.exports = new WorkerService();

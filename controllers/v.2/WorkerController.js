@@ -25,6 +25,14 @@ class WorkerController {
       res.status(500).json(error.message);
     }
   }
+  async getByService(req, res) {
+    try {
+      const botInfo = await WorkerService.getByService(req.query);
+      res.json(botInfo);
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  }
 }
 
 module.exports = new WorkerController();
