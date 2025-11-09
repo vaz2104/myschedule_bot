@@ -1,4 +1,4 @@
-const BotService = require("../../services/v.2/BotService");
+const BotService = require("../../services/v.2/BotService.js");
 
 class BotController {
   async getInfo(req, res) {
