@@ -1,7 +1,7 @@
 const InviteLink = require("../models/InviteLink");
 const TelegramUser = require("../models/TelegramUser");
 const WorkerBotRelations = require("../models/WorkerBotRelations");
-const AuthService = require("../services/AuthService");
+const AuthService = require("../services/authService");
 
 class PanelCallbacks {
   async generateAuthData(bot, options) {
