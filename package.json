@@ -17,6 +17,7 @@
     "moment-timezone": "^0.5.47",
     "mongoose": "^8.6.3",
     "node-telegram-bot-api": "^0.66.0",
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "upper-case": "^2.0.2"
   }
 }
