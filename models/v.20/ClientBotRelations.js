@@ -14,6 +14,18 @@ const ClientBotRelationsSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  salesHintEnabled: {
+    type: Boolean,
+    default: true,
+  },
+  scheduleChangesHintEnabled: {
+    type: Boolean,
+    default: true,
+  },
+  appointmentReminderHintEnabled: {
+    type: Boolean,
+    default: true,
+  },
   date: {
     type: Date,
     default: new Date(dateUkrainTZ),

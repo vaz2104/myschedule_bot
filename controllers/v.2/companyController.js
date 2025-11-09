@@ -70,6 +70,17 @@ class CompanyController {
       res.status(500).json(error.message);
     }
   }
+  async updateClientRelation(req, res) {
+    try {
+      const company = await CompanyService.updateClientRelation(
+        req.params?.id,
+        req.body
+      );
+      res.json(company);
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  }
 }
 
 module.exports = new CompanyController();

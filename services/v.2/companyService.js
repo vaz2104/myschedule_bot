@@ -152,6 +152,21 @@ class CompanyService {
     const newRelation = await ClientBotRelations.create(options);
     return newRelation;
   }
+  async updateClientRelation(id, options) {
+    if (!id) {
+      throw new Error("Invalid data was sent"); // 400
+    }
+
+    const updatedRelation = await ClientBotRelations.findByIdAndUpdate(
+      id,
+      options,
+      {
+        new: true,
+      }
+    );
+
+    return updatedRelation;
+  }
 }
 
 module.exports = new CompanyService();
