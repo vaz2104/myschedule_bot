@@ -1,6 +1,6 @@
 require("dotenv").config();
 const { fork } = require("child_process");
-const Bot = require("../models/v.20/Bot");
+const Bot = require("../models/Bot");
 
 async function PanelsInitialization() {
   try {

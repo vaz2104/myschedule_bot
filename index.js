@@ -6,15 +6,15 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const PanelsInitialization = require("./modules/InitPanels");
 const MainBotMethods = require("./modules/MainBotMethods");
-const botRouts = require("./routs/v.2/botRouts");
-const companyRouts = require("./routs/v.2/companyRouts");
-const servicesRouts = require("./routs/v.2/serviceRouts");
-const userRouts = require("./routs/v.2/userRouts");
-const appointmentRouts = require("./routs/v.2/appointmentRouts");
-const authRouts = require("./routs/v.2/authRouts");
-const scheduleRouts = require("./routs/v.2/scheduleRouts");
-const notificationRouts = require("./routs/v.2/notificationRouts");
-const workerRouts = require("./routs/v.2/workerRouts");
+const botRouts = require("./routs/botRouts");
+const companyRouts = require("./routs/companyRouts");
+const servicesRouts = require("./routs/serviceRouts");
+const userRouts = require("./routs/userRouts");
+const appointmentRouts = require("./routs/appointmentRouts");
+const authRouts = require("./routs/authRouts");
+const scheduleRouts = require("./routs/scheduleRouts");
+const notificationRouts = require("./routs/notificationRouts");
+const workerRouts = require("./routs/workerRouts");
 
 const app = express();
 

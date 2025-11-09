@@ -1,5 +1,5 @@
-const ClientBotRelations = require("../models/v.20/ClientBotRelations");
-const TelegramUser = require("../models/v.20/TelegramUser");
+const ClientBotRelations = require("../models/ClientBotRelations");
+const TelegramUser = require("../models/TelegramUser");
 const Helpers = require("./Helpers");
 
 class PanelMethods {

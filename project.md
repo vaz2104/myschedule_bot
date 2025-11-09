@@ -40,10 +40,10 @@ MySchedule provides a comprehensive scheduling solution where:
 ### Directory Structure
 ```
 .
-├── controllers/v.2/        # Route handlers for API endpoints
-├── services/v.2/           # Business logic layer
-├── models/v.20/            # MongoDB schemas
-├── routs/v.2/              # Express route definitions
+├── controllers/        # Route handlers for API endpoints
+├── services/           # Business logic layer
+├── models/            # MongoDB schemas
+├── routs/              # Express route definitions
 ├── modules/                # Core bot functionality
 ├── lib/                    # Utility functions
 └── index.js                # Main application entry point

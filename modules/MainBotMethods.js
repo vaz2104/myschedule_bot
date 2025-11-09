@@ -1,4 +1,4 @@
-const TelegramUser = require("../models/v.20/TelegramUser");
+const TelegramUser = require("../models/TelegramUser");
 const Helpers = require("./Helpers");
 
 class MainBotMethods {

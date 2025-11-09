@@ -1,8 +1,8 @@
 const TelegramBot = require("node-telegram-bot-api");
 const formatDate = require("../lib/formatDate");
-const Bot = require("../models/v.20/Bot");
-const CompanyService = require("../services/v.2/CompanyService");
-const AppointmentRelations = require("../models/v.20/AppointmentRelations");
+const Bot = require("../models/Bot");
+const CompanyService = require("../services/CompanyService");
+const AppointmentRelations = require("../models/AppointmentRelations");
 
 class TelegramNotifications {
   async newServiceDiscount(newServiceOptions) {
