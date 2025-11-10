@@ -15,6 +15,7 @@ const authRouts = require("./routs/authRouts");
 const scheduleRouts = require("./routs/scheduleRouts");
 const notificationRouts = require("./routs/notificationRouts");
 const workerRouts = require("./routs/workerRouts");
+require("dotenv").config();
 
 const app = express();
 
@@ -67,8 +68,13 @@ app.use("/api", scheduleRouts);
 app.use("/api", notificationRouts);
 app.use("/api", workerRouts);
 
-app.listen(process.env.PORT, () => {
-  console.log(`Main bot started and listening on port ${process.env.PORT}`);
+// app.listen(process.env.PORT, () => {
+//   console.log(`Main bot started and listening on port ${process.env.PORT}`);
+// });
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Main bot started and listening on port ${PORT}`);
 });
 
 PanelsInitialization();
