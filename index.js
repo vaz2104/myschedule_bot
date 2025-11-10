@@ -56,7 +56,7 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to a MySchedule`s API" });
+  res.status(200).json({ message: "Welcome to a MySchedule`s API" });
 });
 app.use("/api", botRouts);
 app.use("/api", companyRouts);
