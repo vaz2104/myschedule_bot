@@ -10,7 +10,7 @@ async function PanelsInitialization() {
 
     tokens.forEach((botConfig, index) => {
       console.log(`Запускаємо ${botConfig._id}...`);
-      const port = 3000 + index + 1;
+      const port = 3100 + index + 1;
       const botProcess = fork(
         "./modules/Panel.js",
         [botConfig.token, port, botConfig._id]

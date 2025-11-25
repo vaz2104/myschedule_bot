@@ -47,6 +47,12 @@ const corsOptions = {
   optionSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
+
+app.get("/", (req, res) => {
+  res
+    .status(200)
+    .json({ message: `Welcome to a child proccess on port:${port}` });
+});
 app.listen(port, () => {
   console.log(`Bot panel listening on port ${port}`);
 });
