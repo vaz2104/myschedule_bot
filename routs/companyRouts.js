@@ -14,5 +14,9 @@ router.put(
 );
 router.post("/company-relation/worker", CompanyController.workerRelationCreate);
 router.get("/company-relation/worker", CompanyController.getWorkerRelation);
+router.put(
+  "/company-relation/worker/:id",
+  CompanyController.updateWorkerRelation
+);
 
 module.exports = router;

@@ -62,6 +62,18 @@ class CompanyController {
     }
   }
 
+  async updateWorkerRelation(req, res) {
+    try {
+      const company = await CompanyService.updateWorkerRelation(
+        req.params?.id,
+        req.body
+      );
+      res.json(company);
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  }
+
   async clientRelationCreate(req, res) {
     try {
       const company = await CompanyService.clientRelationCreate(req.body);

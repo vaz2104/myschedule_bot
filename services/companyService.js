@@ -119,6 +119,22 @@ class CompanyService {
     return relation;
   }
 
+  async updateWorkerRelation(id, options) {
+    if (!id) {
+      throw new Error("Invalid data was sent"); // 400
+    }
+
+    const updatedRelation = await WorkerBotRelations.findByIdAndUpdate(
+      id,
+      options,
+      {
+        new: true,
+      }
+    );
+
+    return updatedRelation;
+  }
+
   async workerRelationCreate(options) {
     let { botId, workerId } = options;
 
