@@ -6,7 +6,7 @@ const PanelMethods = require("./PanelMethods");
 const mongoose = require("mongoose");
 
 const token = process.argv[2];
-const port = process.argv[3] || 3000;
+const port = process.argv[3];
 const botId = process.argv[4];
 
 // console.log(process.argv);

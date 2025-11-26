@@ -10,6 +10,9 @@ const BotSchema = new Schema({
     type: String,
     default: "",
   },
+  port: {
+    type: Number,
+  },
   plan: {
     type: String,
     default: "free", // basic | business | businessPlus

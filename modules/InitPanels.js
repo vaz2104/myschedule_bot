@@ -1,31 +1,15 @@
 require("dotenv").config();
-const { fork } = require("child_process");
 const Bot = require("../models/Bot");
+const NewPanel = require("./NewPanel");
 
 async function PanelsInitialization() {
   try {
-    const tokens = await Bot.find({}, "token");
+    const tokens = await Bot.find({}, ["token", "port"]);
 
     if (!tokens.length) return;
 
-    tokens.forEach((botConfig, index) => {
-      console.log(`Запускаємо ${botConfig._id}...`);
-      const port = 3100 + index + 1;
-      const botProcess = fork(
-        "./modules/Panel.js",
-        [botConfig.token, port, botConfig._id]
-        // { silent: true }
-      );
-
-      // Логування повідомлень з процесу бота
-      botProcess.on("message", (message) => {
-        console.log(`Повідомлення від ${botConfig._id}:`, message);
-      });
-
-      // Обробка завершення процесу
-      botProcess.on("exit", (code) => {
-        console.log(`Процес ${botConfig._id} завершився з кодом: ${code}`);
-      });
+    tokens.forEach((botConfig) => {
+      NewPanel(botConfig._id, botConfig.token, botConfig.port);
     });
   } catch (error) {
     console.log(error);

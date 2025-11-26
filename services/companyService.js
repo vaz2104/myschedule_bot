@@ -2,6 +2,7 @@ const TelegramBot = require("node-telegram-bot-api");
 const Bot = require("../models/Bot");
 const ClientBotRelations = require("../models/ClientBotRelations");
 const WorkerBotRelations = require("../models/WorkerBotRelations");
+const NewPanel = require("../modules/NewPanel");
 
 class CompanyService {
   async create(options) {
@@ -19,14 +20,20 @@ class CompanyService {
     if (company) {
       throw new Error("Company is already registered"); // 400
     }
-
-    const newCompany = await Bot.create(options);
+    const lastPort = await Bot.findOne({}, ["port"]).sort("-port");
+    const port = lastPort.port + 1;
+    const newCompany = await Bot.create({
+      ...options,
+      port,
+    });
 
     if (newCompany) {
       await this.workerRelationCreate({
         botId: newCompany?._id,
         workerId: newCompany?.adminId,
       });
+
+      await NewPanel(newCompany._id, token, port);
     }
 
     return newCompany;
