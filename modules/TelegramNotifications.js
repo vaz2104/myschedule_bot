@@ -1,7 +1,6 @@
 const TelegramBot = require("node-telegram-bot-api");
 const formatDate = require("../lib/formatDate");
 const Bot = require("../models/Bot");
-const CompanyService = require("../services/companyService");
 const AppointmentRelations = require("../models/AppointmentRelations");
 const TelegramUser = require("../models/TelegramUser");
 
