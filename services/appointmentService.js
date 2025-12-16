@@ -18,7 +18,7 @@ class AppointmentService {
     const query = JSON.parse(JSON.stringify(options));
 
     const appointments = await AppointmentRelations.find(query)
-      .populate(["serviceId", "clientId", "scheduleId"])
+      .populate(["serviceId", "clientId", "scheduleId", "workerId"])
       .sort([["timestamp", -1]])
       .exec();
 
