@@ -27,8 +27,45 @@ class ServiceService {
         options.recipient = companyData?.adminId;
       }
     }
+    // console.log(options?.type);
 
     switch (options?.type) {
+      case "newService":
+        const {
+          _id: newServiceId,
+          service: newServiceNervice,
+          price: newServicePrice,
+          priceWithSale: newServicePriceWithSale,
+          saleEndDay: newServiceSaleEndDay,
+        } = options?.meta;
+
+        options.notification.message = `У нас нова знижка на послугу`;
+        options.notification.metadata = JSON.stringify({
+          notificationType: options?.type,
+          messageOptions: {
+            serviceId: newServiceId,
+            service: newServiceNervice,
+            price: newServicePrice,
+            priceWithSale: newServicePriceWithSale,
+            saleEndDay: newServiceSaleEndDay,
+          },
+        });
+
+        const newServiceClients = await ClientBotRelations.find(
+          { botId: options?.notification?.botId, salesHintEnabled: true },
+          { telegramUserId: 1 }
+        );
+
+        const newServiceClientsIDs = [];
+        newServiceClients.forEach((client) => {
+          newServiceClientsIDs.push(client?.telegramUserId);
+        });
+
+        // console.log("newServiceClientsIDs", newServiceClientsIDs);
+
+        recipients = newServiceClientsIDs;
+
+        break;
       case "newDiscount":
         const { _id, service, price, priceWithSale, saleEndDay } =
           options?.meta;
@@ -46,13 +83,13 @@ class ServiceService {
         });
 
         const clients = await ClientBotRelations.find(
-          { botId: options?.notification?.botId },
-          { _id: 1 }
+          { botId: options?.notification?.botId, salesHintEnabled: true },
+          { telegramUserId: 1 }
         );
 
         const clientsIDs = [];
         clients.forEach((client) => {
-          clientsIDs.push(client?._id);
+          clientsIDs.push(client?.telegramUserId);
         });
 
         recipients = clientsIDs;
@@ -108,7 +145,9 @@ class ServiceService {
         });
         break;
     }
-    console.log(options);
+    // console.log(options);
+
+    // console.log(recipients);
 
     const newNotification = await Notification.create(options?.notification);
 
@@ -116,6 +155,8 @@ class ServiceService {
       if (recipients && Array.isArray(recipients)) {
         await Promise.all(
           recipients.map(async (id) => {
+            // console.log(id);
+
             const relation = await NotificationUserRelation.create({
               notification: newNotification?._id,
               recipient: id,
@@ -125,7 +166,13 @@ class ServiceService {
             if (relation?._id) {
               switch (options?.type) {
                 case "newDiscount":
-                  await TelegramNotifications.newServiceDiscount(options?.meta);
+                  await TelegramNotifications.newServiceDiscount(
+                    options?.meta,
+                    id
+                  );
+                  break;
+                case "newService":
+                  await TelegramNotifications.newService(options?.meta, id);
                   break;
                 case "clientNewAppointment":
                   await TelegramNotifications.newAppointment(options?.meta);

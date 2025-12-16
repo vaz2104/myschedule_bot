@@ -3,9 +3,10 @@ const formatDate = require("../lib/formatDate");
 const Bot = require("../models/Bot");
 const CompanyService = require("../services/companyService");
 const AppointmentRelations = require("../models/AppointmentRelations");
+const TelegramUser = require("../models/TelegramUser");
 
 class TelegramNotifications {
-  async newServiceDiscount(newServiceOptions) {
+  async newServiceDiscount(newServiceOptions, systemUserId) {
     const { botId, service, price, priceWithSale, saleEndDay } =
       newServiceOptions;
 
@@ -22,29 +23,69 @@ class TelegramNotifications {
       return;
     }
 
-    const users = await CompanyService.getClientRelation({
-      botId,
+    const user = await TelegramUser.findById(systemUserId);
+
+    await bot.sendMessage(user?.userId, message, {
+      parse_mode: "HTML",
     });
 
-    return Promise.all(
-      users.map(async (user) => {
-        await bot.sendMessage(user?.telegramUserId?.userId, message, {
-          parse_mode: "HTML",
-        });
-      })
-    ).then(() => {
-      console.log("Notifications have been sent");
+    // return Promise.all(
+    //   users.map(async (user) => {
+    //     await bot.sendMessage(user?.telegramUserId?.userId, message, {
+    //       parse_mode: "HTML",
+    //     });
+    //   })
+    // ).then(() => {
+    //   console.log("Notifications have been sent");
+    // });
+  }
+
+  async newService(newServiceOptions, systemUserId) {
+    if (!systemUserId) return;
+    // console.log("systemUserId", systemUserId);
+
+    const { botId, service, price, priceWithSale, saleEndDay } =
+      newServiceOptions;
+
+    const message = `Привіт!\nУ нас стартує нова послуга <b>"${service}"</b>!\nІі вартість становить <b>${price} грн</b>\nСкористайтесь послугою! Переходьте в панель та обирайте вільне місце 🥰\n${
+      priceWithSale &&
+      saleEndDay &&
+      `Також зараз діє знижка <b>${priceWithSale} грн</b>!\nАкція триватиме до <b>${formatDate(
+        saleEndDay
+      )}</b>\n`
+    }`;
+
+    const botData = await Bot.findById(botId);
+    let bot = new TelegramBot(botData?.token, {
+      polling: false,
+    });
+
+    if (!bot) {
+      return;
+    }
+
+    const user = await TelegramUser.findById(systemUserId);
+    // console.log("user", user);
+
+    await bot.sendMessage(user?.userId, message, {
+      parse_mode: "HTML",
     });
   }
 
   async newAppointment(appointment) {
+    // console.log("appointment", appointment);
+
     const botData = await Bot.findById(appointment?.botId).populate([
       "adminId",
     ]);
 
+    // console.log("botData", botData);
+
     const appointmentData = await AppointmentRelations.findById(
       appointment?._id
-    ).populate(["botId", "serviceId", "clientId", "scheduleId"]);
+    ).populate(["botId", "serviceId", "clientId", "scheduleId", "workerId"]);
+
+    // console.log("appointmentData", appointmentData);
 
     let bot = new TelegramBot(process.env.BOT_TOKEN, {
       polling: false,
@@ -89,14 +130,40 @@ class TelegramNotifications {
     await bot.sendMessage(botData?.adminId?.userId, fullMessage, {
       parse_mode: "HTML",
     });
+
+    // console.log("adminId", botData?.adminId?._id);
+    // console.log("workerId", appointmentData?.workerId?._id);
+
+    if (
+      botData?.adminId?._id.toString() !==
+      appointmentData?.workerId?._id.toString()
+    ) {
+      let companyBot = new TelegramBot(botData?.token, {
+        polling: false,
+      });
+
+      if (!companyBot) {
+        return;
+      }
+
+      await companyBot.sendMessage(
+        appointmentData?.workerId?.userId,
+        fullMessage,
+        {
+          parse_mode: "HTML",
+        }
+      );
+    }
   }
 
   async adminCancelAppointment(appointmentData) {
+    // console.log(appointmentData);
+
     const botData = await Bot.findById(appointmentData?.botId?._id).populate([
       "adminId",
     ]);
 
-    let bot = new TelegramBot(process.env.BOT_TOKEN, {
+    let bot = new TelegramBot(botData?.token, {
       polling: false,
     });
 
@@ -116,7 +183,9 @@ class TelegramNotifications {
 
     const fullMessage = `${message}${scheduleInfo}`;
 
-    await bot.sendMessage(botData?.adminId?.userId, fullMessage, {
+    const user = await TelegramUser.findById(appointmentData?.clientId);
+
+    await bot.sendMessage(user?.userId, fullMessage, {
       parse_mode: "HTML",
     });
   }
@@ -157,6 +226,24 @@ class TelegramNotifications {
     await bot.sendMessage(botData?.adminId?.userId, fullMessage, {
       parse_mode: "HTML",
     });
+
+    if (
+      botData?.adminId?._id.toString() !== appointmentData?.workerId?.toString()
+    ) {
+      let companyBot = new TelegramBot(botData?.token, {
+        polling: false,
+      });
+
+      if (!companyBot) {
+        return;
+      }
+
+      const user = await TelegramUser.findById(appointmentData?.workerId);
+
+      await companyBot.sendMessage(user?.userId, fullMessage, {
+        parse_mode: "HTML",
+      });
+    }
   }
 }
 
