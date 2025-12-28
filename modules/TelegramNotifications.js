@@ -1,17 +1,13 @@
 const TelegramBot = require("node-telegram-bot-api");
-const formatDate = require("../lib/formatDate");
 const Bot = require("../models/Bot");
 const AppointmentRelations = require("../models/AppointmentRelations");
 const TelegramUser = require("../models/TelegramUser");
+const TelegramMessages = require("./TelegramMessages");
 
 class TelegramNotifications {
   async newServiceDiscount(newServiceOptions, systemUserId) {
     const { botId, service, price, priceWithSale, saleEndDay } =
       newServiceOptions;
-
-    const message = `Привіт!\nУ нас нова знижка на послугу <b>"${service}"</b>!\nМи знизили ціну з <b>${price} грн</b> до <b>${priceWithSale} грн</b>!\nАкція діє до <b>${formatDate(
-      saleEndDay
-    )}</b>\nВстигніть скористатися нагодою, переходьте в панель та обирайте вільне місце 🥰`;
 
     const botData = await Bot.findById(botId);
     let bot = new TelegramBot(botData?.token, {
@@ -24,9 +20,18 @@ class TelegramNotifications {
 
     const user = await TelegramUser.findById(systemUserId);
 
-    await bot.sendMessage(user?.userId, message, {
-      parse_mode: "HTML",
-    });
+    await bot.sendMessage(
+      user?.userId,
+      TelegramMessages.newServiceDiscount(
+        service,
+        price,
+        priceWithSale,
+        saleEndDay
+      ),
+      {
+        parse_mode: "HTML",
+      }
+    );
 
     // return Promise.all(
     //   users.map(async (user) => {
@@ -41,18 +46,9 @@ class TelegramNotifications {
 
   async newService(newServiceOptions, systemUserId) {
     if (!systemUserId) return;
-    // console.log("systemUserId", systemUserId);
 
     const { botId, service, price, priceWithSale, saleEndDay } =
       newServiceOptions;
-
-    const message = `Привіт!\nУ нас стартує нова послуга <b>"${service}"</b>!\nІі вартість становить <b>${price} грн</b>\nСкористайтесь послугою! Переходьте в панель та обирайте вільне місце 🥰\n${
-      priceWithSale &&
-      saleEndDay &&
-      `Також зараз діє знижка <b>${priceWithSale} грн</b>!\nАкція триватиме до <b>${formatDate(
-        saleEndDay
-      )}</b>\n`
-    }`;
 
     const botData = await Bot.findById(botId);
     let bot = new TelegramBot(botData?.token, {
@@ -64,27 +60,24 @@ class TelegramNotifications {
     }
 
     const user = await TelegramUser.findById(systemUserId);
-    // console.log("user", user);
 
-    await bot.sendMessage(user?.userId, message, {
-      parse_mode: "HTML",
-    });
+    await bot.sendMessage(
+      user?.userId,
+      TelegramMessages.newService(service, price, priceWithSale, saleEndDay),
+      {
+        parse_mode: "HTML",
+      }
+    );
   }
 
   async newAppointment(appointment) {
-    // console.log("appointment", appointment);
-
     const botData = await Bot.findById(appointment?.botId).populate([
       "adminId",
     ]);
 
-    // console.log("botData", botData);
-
     const appointmentData = await AppointmentRelations.findById(
       appointment?._id
     ).populate(["botId", "serviceId", "clientId", "scheduleId", "workerId"]);
-
-    // console.log("appointmentData", appointmentData);
 
     let bot = new TelegramBot(process.env.BOT_TOKEN, {
       polling: false,
@@ -94,44 +87,25 @@ class TelegramNotifications {
       return;
     }
 
-    // console.log(appointmentData);
-
     const appointments = JSON.parse(
       JSON.stringify(appointmentData?.scheduleId?.schedule)
     );
 
-    const message = `Новий запис на прийом 🎉\n`;
-
-    const clientInfo = `<b>Клієнт:</b>\n${
-      appointmentData?.clientId?.firstName
-    } ${
-      appointmentData?.clientId?.username
-        ? `@${appointmentData?.clientId?.username}`
-        : ""
-    }\n`;
-
-    const scheduleInfo = `<b>Зарезервоване місце:</b>\n${formatDate(
-      appointmentData?.scheduleId?.date
-    )}, ${appointments[appointmentData?.appointmentKey]}\n`;
-
-    const serviceInfo = `<b>Обрана послуга:</b>\n${
-      appointmentData?.serviceId?.service
-    }\n${
-      appointmentData?.serviceId?.priceWithSale
-        ? `Активна знижка: <b>${appointmentData?.serviceId?.priceWithSale}</b> <s>${appointmentData?.serviceId?.price}</s>`
-        : `${appointmentData?.serviceId?.price}`
-    }`;
-
-    const fullMessage = `${message}${clientInfo}${scheduleInfo}${
-      appointmentData?.serviceId ? serviceInfo : ""
-    }`;
-
-    await bot.sendMessage(botData?.adminId?.userId, fullMessage, {
-      parse_mode: "HTML",
-    });
-
-    // console.log("adminId", botData?.adminId?._id);
-    // console.log("workerId", appointmentData?.workerId?._id);
+    await bot.sendMessage(
+      botData?.adminId?.userId,
+      TelegramMessages.newAppointment(
+        appointmentData?.clientId?.firstName,
+        appointmentData?.clientId?.username,
+        appointmentData?.scheduleId?.date,
+        appointments[appointmentData?.appointmentKey],
+        appointmentData?.serviceId?.service,
+        appointmentData?.serviceId?.price,
+        appointmentData?.serviceId?.priceWithSale
+      ),
+      {
+        parse_mode: "HTML",
+      }
+    );
 
     if (
       botData?.adminId?._id.toString() !==
@@ -147,7 +121,15 @@ class TelegramNotifications {
 
       await companyBot.sendMessage(
         appointmentData?.workerId?.userId,
-        fullMessage,
+        TelegramMessages.newAppointment(
+          appointmentData?.clientId?.firstName,
+          appointmentData?.clientId?.username,
+          appointmentData?.scheduleId?.date,
+          appointments[appointmentData?.appointmentKey],
+          appointmentData?.serviceId?.service,
+          appointmentData?.serviceId?.price,
+          appointmentData?.serviceId?.priceWithSale
+        ),
         {
           parse_mode: "HTML",
         }
@@ -156,8 +138,6 @@ class TelegramNotifications {
   }
 
   async adminCancelAppointment(appointmentData) {
-    // console.log(appointmentData);
-
     const botData = await Bot.findById(appointmentData?.botId?._id).populate([
       "adminId",
     ]);
@@ -174,19 +154,18 @@ class TelegramNotifications {
       JSON.stringify(appointmentData?.scheduleId?.schedule)
     );
 
-    const message = `Скасовано запис на прийом 🚫\n`;
-
-    const scheduleInfo = `<b>Адміністратор скасував Ваше зарезервоване місце:</b>\n${formatDate(
-      appointmentData?.scheduleId?.date
-    )}, ${appointments[appointmentData?.appointmentKey]}\n`;
-
-    const fullMessage = `${message}${scheduleInfo}`;
-
     const user = await TelegramUser.findById(appointmentData?.clientId);
 
-    await bot.sendMessage(user?.userId, fullMessage, {
-      parse_mode: "HTML",
-    });
+    await bot.sendMessage(
+      user?.userId,
+      TelegramMessages.adminCancelAppointment(
+        appointmentData?.scheduleId?.date,
+        appointments[appointmentData?.appointmentKey]
+      ),
+      {
+        parse_mode: "HTML",
+      }
+    );
   }
 
   async clientCancelAppointment(appointmentData) {
@@ -206,25 +185,18 @@ class TelegramNotifications {
       JSON.stringify(appointmentData?.scheduleId?.schedule)
     );
 
-    const message = `Скасовано запис на прийом 🚫\n`;
-
-    const clientInfo = `<b>Клієнт:</b>\n${
-      appointmentData?.clientId?.firstName
-    } ${
-      appointmentData?.clientId?.username
-        ? `@${appointmentData?.clientId?.username}`
-        : ""
-    }\n`;
-
-    const scheduleInfo = `<b>Зарезервоване місце:</b>\n${formatDate(
-      appointmentData?.scheduleId?.date
-    )}, ${appointments[appointmentData?.appointmentKey]}\n`;
-
-    const fullMessage = `${message}${clientInfo}${scheduleInfo}`;
-
-    await bot.sendMessage(botData?.adminId?.userId, fullMessage, {
-      parse_mode: "HTML",
-    });
+    await bot.sendMessage(
+      botData?.adminId?.userId,
+      TelegramMessages.clientCancelAppointment(
+        appointmentData?.clientId?.firstName,
+        appointmentData?.clientId?.username,
+        appointmentData?.scheduleId?.date,
+        appointments[appointmentData?.appointmentKey]
+      ),
+      {
+        parse_mode: "HTML",
+      }
+    );
 
     if (
       botData?.adminId?._id.toString() !== appointmentData?.workerId?.toString()
@@ -239,9 +211,18 @@ class TelegramNotifications {
 
       const user = await TelegramUser.findById(appointmentData?.workerId);
 
-      await companyBot.sendMessage(user?.userId, fullMessage, {
-        parse_mode: "HTML",
-      });
+      await companyBot.sendMessage(
+        user?.userId,
+        TelegramMessages.clientCancelAppointment(
+          appointmentData?.clientId?.firstName,
+          appointmentData?.clientId?.username,
+          appointmentData?.scheduleId?.date,
+          appointments[appointmentData?.appointmentKey]
+        ),
+        {
+          parse_mode: "HTML",
+        }
+      );
     }
   }
 }
