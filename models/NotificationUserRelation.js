@@ -10,6 +10,10 @@ const NotificationUserRelationSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "TelegramUser",
   },
+  botId: {
+    type: Schema.Types.ObjectId,
+    ref: "Bot",
+  },
   recipientRole: {
     type: String,
     default: "", // client | admin

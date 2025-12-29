@@ -160,6 +160,7 @@ class ServiceService {
             const relation = await NotificationUserRelation.create({
               notification: newNotification?._id,
               recipient: id,
+              botId: options.notification?.botId,
               recipientRole: options?.recipientRole,
             });
 
