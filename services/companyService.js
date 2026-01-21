@@ -6,15 +6,15 @@ const NewPanel = require("../modules/NewPanel");
 
 class CompanyService {
   async create(options) {
-    let { adminId, token } = options;
+    let { adminId, token, telegramBotId } = options;
 
-    if (!adminId || !token) {
+    if (!adminId || !token || !telegramBotId) {
       throw new Error("Invalid data was sent"); // 400
     }
 
     const company = await Bot.findOne({
       adminId,
-      token,
+      telegramBotId,
     });
 
     if (company) {

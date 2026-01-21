@@ -10,6 +10,10 @@ const BotSchema = new Schema({
     type: String,
     default: "",
   },
+  telegramBotId: {
+    type: String,
+    default: "",
+  },
   port: {
     type: Number,
   },
@@ -21,6 +25,14 @@ const BotSchema = new Schema({
     type: Date,
     default: "",
   },
+  // isBlocked: {
+  //   type: Boolean,
+  //   default: false,
+  // },
+  // infoMessage: {
+  //   type: String,
+  //   default: "",
+  // },
   themePalette: {
     type: String,
     default: "",
