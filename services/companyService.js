@@ -3,6 +3,7 @@ const Bot = require("../models/Bot");
 const ClientBotRelations = require("../models/ClientBotRelations");
 const WorkerBotRelations = require("../models/WorkerBotRelations");
 const NewPanel = require("../modules/NewPanel");
+const telegramUserService = require("./telegramUserService");
 
 class CompanyService {
   async create(options) {
@@ -109,10 +110,27 @@ class CompanyService {
       throw new Error("Invalid data was sent"); // 400
     }
 
-    const relation = await ClientBotRelations.find(options).populate([
-      "telegramUserId",
-    ]);
-    return relation;
+    const relation = await ClientBotRelations.find(options);
+    const combinedData = [];
+    if (relation?.length) {
+      await Promise.all(
+        relation.map(async (relation) => {
+          const userData = await telegramUserService.getOne(
+            relation?.telegramUserId,
+            { companyID: relation?.botId },
+          );
+
+          combinedData.push({
+            ...JSON.parse(JSON.stringify(relation)),
+            telegramUserId: userData,
+          });
+        }),
+      ).then(() => {
+        return console.log("Success!");
+      });
+    }
+
+    return combinedData;
   }
 
   async getWorkerRelation(options) {
@@ -136,7 +154,7 @@ class CompanyService {
       options,
       {
         new: true,
-      }
+      },
     );
 
     return updatedRelation;
@@ -185,7 +203,7 @@ class CompanyService {
       options,
       {
         new: true,
-      }
+      },
     );
 
     return updatedRelation;

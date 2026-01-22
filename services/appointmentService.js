@@ -1,4 +1,5 @@
 const AppointmentRelations = require("../models/AppointmentRelations");
+const telegramUserService = require("./telegramUserService");
 
 class AppointmentService {
   async create(options) {
@@ -32,17 +33,36 @@ class AppointmentService {
 
     const query = JSON.parse(JSON.stringify(options));
     const clientsIds = [];
+    const relations = [];
     const clients = [];
     const appointments = await AppointmentRelations.find(query, {
       clientId: 1,
-    }).populate(["clientId"]);
+      botId: 1,
+    });
 
     if (appointments?.length) {
-      appointments.forEach((client) => {
-        if (!clientsIds.includes(client?.clientId?._id)) {
-          clientsIds.push(client?.clientId?._id);
-          clients.push(client);
+      appointments.forEach((appointment) => {
+        if (!clientsIds.includes(appointment?.clientId.toString())) {
+          clientsIds.push(appointment?.clientId.toString());
+          relations.push(appointment);
         }
+      });
+    }
+
+    if (clientsIds?.length) {
+      await Promise.all(
+        relations.map(async (relation) => {
+          const userData = await telegramUserService.getOne(
+            relation?.clientId,
+            {
+              companyID: relation?.botId,
+            },
+          );
+
+          clients.push(userData);
+        }),
+      ).then(() => {
+        return console.log("Success!");
       });
     }
 
@@ -72,7 +92,7 @@ class AppointmentService {
     const appointment = await AppointmentRelations.findByIdAndUpdate(
       id,
       options,
-      { new: true }
+      { new: true },
     );
 
     return appointment;

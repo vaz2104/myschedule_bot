@@ -21,7 +21,10 @@ class TelegramUserController {
 
   async getOne(req, res) {
     try {
-      const telegramUser = await TelegramUserService.getOne(req.params?.id);
+      const telegramUser = await TelegramUserService.getOne(
+        req.params?.id,
+        req.query
+      );
       res.json(telegramUser);
     } catch (error) {
       res.status(500).json(error.message);
