@@ -5,6 +5,7 @@ const Notification = require("../models/Notification");
 const NotificationUserRelation = require("../models/NotificationUserRelation");
 const TelegramNotifications = require("../modules/TelegramNotifications");
 const CompanyService = require("./companyService");
+const telegramUserService = require("./telegramUserService");
 
 class ServiceService {
   async create(query) {
@@ -21,7 +22,7 @@ class ServiceService {
     ) {
       if (!options?.recipient) {
         const companyData = await CompanyService.getOne(
-          options.notification.botId
+          options.notification.botId,
         );
         recipients = [companyData?.adminId];
         options.recipient = companyData?.adminId;
@@ -53,7 +54,7 @@ class ServiceService {
 
         const newServiceClients = await ClientBotRelations.find(
           { botId: options?.notification?.botId, salesHintEnabled: true },
-          { telegramUserId: 1 }
+          { telegramUserId: 1 },
         );
 
         const newServiceClientsIDs = [];
@@ -84,7 +85,7 @@ class ServiceService {
 
         const clients = await ClientBotRelations.find(
           { botId: options?.notification?.botId, salesHintEnabled: true },
-          { telegramUserId: 1 }
+          { telegramUserId: 1 },
         );
 
         const clientsIDs = [];
@@ -169,7 +170,7 @@ class ServiceService {
                 case "newDiscount":
                   await TelegramNotifications.newServiceDiscount(
                     options?.meta,
-                    id
+                    id,
                   );
                   break;
                 case "newService":
@@ -180,17 +181,17 @@ class ServiceService {
                   break;
                 case "clientCancelAppointment":
                   await TelegramNotifications.clientCancelAppointment(
-                    options?.meta
+                    options?.meta,
                   );
                   break;
                 case "adminCancelAppointment":
                   await TelegramNotifications.adminCancelAppointment(
-                    options?.meta
+                    options?.meta,
                   );
                   break;
               }
             }
-          })
+          }),
         ).then(() => {
           console.log("Notifications have been sent");
         });
@@ -203,26 +204,45 @@ class ServiceService {
   async getAll(query) {
     const objects = await NotificationUserRelation.find(query)
       .sort([["timestamp", -1]])
-      .populate(["notification", "recipient"])
-      .populate({
-        path: "notification",
-        populate: [
+      .populate(["notification", "recipient"]);
+    // .populate({
+    //   path: "notification",
+    //   populate: [
+    //     {
+    //       path: "author",
+    //       model: "TelegramUser",
+    //     },
+    //   ],
+    // });
+
+    const combinedRelations = [];
+    await Promise.all(
+      objects.map(async (relation) => {
+        const userData = await telegramUserService.getOne(
+          relation?.notification?.author,
           {
-            path: "author",
-            model: "TelegramUser",
+            companyID: relation?.botId,
           },
-        ],
-      });
+        );
+
+        const newRelation = JSON.parse(JSON.stringify(relation));
+
+        newRelation.notification.author = userData;
+        combinedRelations.push(newRelation);
+      }),
+    ).then(() => {
+      return console.log("Success!");
+    });
 
     await NotificationUserRelation.updateMany(
       {
         recipient: query?.recipient,
         isOpened: false,
       },
-      { isOpened: true, openedDate: new Date(dateUkrainTZ) }
+      { isOpened: true, openedDate: new Date(dateUkrainTZ) },
     );
 
-    return objects;
+    return combinedRelations;
   }
 }
 
