@@ -3,6 +3,7 @@ const formatDate = require("../lib/formatDate");
 const WorkerBotSchedule = require("../models/WorkerBotSchedule");
 const AppointmentRelations = require("../models/AppointmentRelations");
 const daysInMonth = require("../lib/daysInMonth");
+const telegramUserService = require("./telegramUserService");
 
 class ScheduleService {
   async create(options) {
@@ -60,13 +61,25 @@ class ScheduleService {
 
     const relations = await AppointmentRelations.find({
       scheduleId: { $in: ids },
-    }).populate(["clientId", "serviceId"]);
+    }).populate(["serviceId"]);
+
+    const combinedRelations = [];
+    await Promise.all(
+      relations.map(async (relation) => {
+        const userData = await telegramUserService.getOne(relation?.clientId, {
+          companyID: relation?.botId,
+        });
+
+        combinedRelations.push({ ...relation.toJSON(), clientId: userData });
+      }),
+    ).then(() => {
+      return console.log("Success!");
+    });
 
     const combinedAnswer = [];
-
     schedule.forEach((el) => {
-      const filteredRelations = relations.filter(
-        (rel) => rel.scheduleId.toString() === el._id.toString()
+      const filteredRelations = combinedRelations.filter(
+        (rel) => rel.scheduleId.toString() === el._id.toString(),
       );
 
       const newAnswer = { ...el.toJSON() };
@@ -94,7 +107,7 @@ class ScheduleService {
     const updatedSchedule = await WorkerBotSchedule.findByIdAndUpdate(
       scheduleId,
       query,
-      { new: true }
+      { new: true },
     );
 
     return updatedSchedule;
@@ -105,9 +118,8 @@ class ScheduleService {
       throw new Error("Invalid data was sent"); // 400
     }
 
-    const deletedSchedule = await WorkerBotSchedule.findByIdAndDelete(
-      scheduleId
-    );
+    const deletedSchedule =
+      await WorkerBotSchedule.findByIdAndDelete(scheduleId);
     return deletedSchedule;
   }
 }
