@@ -10,6 +10,18 @@ const ClientBotRelationsSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "TelegramUser",
   },
+  firstName: {
+    type: String,
+    default: "",
+  },
+  lastName: {
+    type: String,
+    default: "",
+  },
+  phoneNumber: {
+    type: String,
+    default: "",
+  },
   isBlocked: {
     type: Boolean,
     default: false,
