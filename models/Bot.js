@@ -37,6 +37,15 @@ const BotSchema = new Schema({
     type: String,
     default: "",
   },
+  phoneNumbers: [
+    {
+      type: String,
+    },
+  ],
+  address: {
+    type: String,
+    default: "",
+  },
   dateRegistration: {
     type: Date,
     default: new Date(dateUkrainTZ),
