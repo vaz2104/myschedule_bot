@@ -5,14 +5,20 @@ const Helpers = require("./Helpers");
 class PanelMethods {
   async initCommand(bot, botId) {
     bot.on("message", async (msg) => {
-      const { id: chatId } = msg.from;
+      // const { id: chatId } = msg.from;
       // bot.sendMessage(chatId, `Souy said "${msg.text}"`);
 
       return false;
     });
 
     bot.onText(/\/start/, async function (msg) {
-      const { id: chatId, username, first_name: firstName } = msg.from;
+      const {
+        id: chatId,
+        username,
+        first_name: firstName,
+        last_name: lastName,
+      } = msg.from;
+
       const dataParts = msg.text.split(" ");
 
       const telegramUserResponse = await TelegramUser.findOne({
@@ -32,14 +38,15 @@ class PanelMethods {
           const newUserOptions = {
             username: username || firstName || "",
             userId: chatId,
-            firstName,
+            firstName: firstName || "",
+            lastName: lastName || "",
           };
 
           const avatars = await bot.getUserProfilePhotos(chatId);
 
           if (avatars?.photos[0]) {
             newUserOptions.photoUrl = await bot.getFileLink(
-              avatars?.photos[0][0]?.file_id
+              avatars?.photos[0][0]?.file_id,
             );
           }
 
@@ -59,6 +66,8 @@ class PanelMethods {
           await ClientBotRelations.create({
             botId,
             telegramUserId: telegramUser?._id,
+            firstName: firstName || "",
+            lastName: lastName || "",
           });
           isNewUser = true;
         }
@@ -73,7 +82,7 @@ class PanelMethods {
             }!\nВітаємо в <b>${botData.first_name}</b>`,
             {
               parse_mode: "HTML",
-            }
+            },
           );
         } else {
           if (!dataParts[1]) {
@@ -84,7 +93,7 @@ class PanelMethods {
               }, раді знову бачити!`,
               {
                 parse_mode: "HTML",
-              }
+              },
             );
           }
         }
@@ -103,7 +112,7 @@ class PanelMethods {
 
         await bot.sendMessage(
           chatId,
-          `Вибачте, сталася помилка! Повторіть спробу знову! ${error}`
+          `Вибачте, сталася помилка! Повторіть спробу знову! ${error}`,
         );
       }
     });
