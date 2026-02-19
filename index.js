@@ -16,6 +16,7 @@ const scheduleRouts = require("./routs/scheduleRouts");
 const notificationRouts = require("./routs/notificationRouts");
 const workerRouts = require("./routs/workerRouts");
 const hintsRouts = require("./routs/hintsRouts");
+const clientHintsRouts = require("./routs/clientHintsRouts");
 
 require("dotenv").config();
 
@@ -70,6 +71,7 @@ app.use("/api", scheduleRouts);
 app.use("/api", notificationRouts);
 app.use("/api", workerRouts);
 app.use("/api", hintsRouts);
+app.use("/api", clientHintsRouts);
 
 // app.listen(process.env.PORT, () => {
 //   console.log(`Main bot started and listening on port ${process.env.PORT}`);
