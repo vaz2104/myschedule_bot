@@ -65,7 +65,7 @@ class CompanyService {
         data.avatar = await bot.getFileLink(avatars?.photos[0][0]?.file_id);
       }
 
-      botsData.push({ _id: botItem._id, ...data, m: "323" });
+      botsData.push({ _id: botItem._id, ...data });
     }
 
     return botsData;
@@ -84,7 +84,13 @@ class CompanyService {
     if (!bot) return [];
 
     const telegramData = await bot.getMe();
-    // console.log(botData);
+    const avatars = await bot.getUserProfilePhotos(telegramData?.id);
+
+    if (avatars?.photos[0]) {
+      telegramData.avatar = await bot.getFileLink(
+        avatars?.photos[0][0]?.file_id,
+      );
+    }
 
     return {
       ...JSON.parse(JSON.stringify(botData)),
