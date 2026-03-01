@@ -4,6 +4,7 @@ const WorkerBotSchedule = require("../models/WorkerBotSchedule");
 const AppointmentRelations = require("../models/AppointmentRelations");
 const daysInMonth = require("../lib/daysInMonth");
 const telegramUserService = require("./telegramUserService");
+const customClientService = require("./customClientService");
 
 class ScheduleService {
   async create(options) {
@@ -66,11 +67,27 @@ class ScheduleService {
     const combinedRelations = [];
     await Promise.all(
       relations.map(async (relation) => {
-        const userData = await telegramUserService.getOne(relation?.clientId, {
-          companyID: relation?.botId,
-        });
+        if (relation?.clientId) {
+          const userData = await telegramUserService.getOne(
+            relation?.clientId,
+            {
+              companyID: relation?.botId,
+            },
+          );
 
-        combinedRelations.push({ ...relation.toJSON(), clientId: userData });
+          combinedRelations.push({ ...relation.toJSON(), clientId: userData });
+        }
+
+        if (relation?.customClientId) {
+          const customUserData = await customClientService.getOne(
+            relation?.customClientId,
+          );
+
+          combinedRelations.push({
+            ...relation.toJSON(),
+            customClientId: customUserData,
+          });
+        }
       }),
     ).then(() => {
       return console.log("Success!");

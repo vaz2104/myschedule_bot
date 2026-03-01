@@ -10,6 +10,10 @@ const AppointmentRelationsSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "TelegramUser",
   },
+  customClientId: {
+    type: Schema.Types.ObjectId,
+    ref: "CustomClient",
+  },
   workerId: {
     type: Schema.Types.ObjectId,
     ref: "TelegramUser",
