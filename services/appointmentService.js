@@ -42,7 +42,10 @@ class AppointmentService {
 
     if (appointments?.length) {
       appointments.forEach((appointment) => {
-        if (!clientsIds.includes(appointment?.clientId.toString())) {
+        if (
+          appointment?.clientId &&
+          !clientsIds.includes(appointment?.clientId.toString())
+        ) {
           clientsIds.push(appointment?.clientId.toString());
           relations.push(appointment);
         }
