@@ -18,6 +18,7 @@ const workerRouts = require("./routs/workerRouts");
 const hintsRouts = require("./routs/hintsRouts");
 const clientHintsRouts = require("./routs/clientHintsRouts");
 const customClientRouts = require("./routs/customClientRouts");
+const subscriptionsRouts = require("./routs/subscriptionsRouts");
 
 require("dotenv").config();
 
@@ -74,6 +75,7 @@ app.use("/api", workerRouts);
 app.use("/api", hintsRouts);
 app.use("/api", clientHintsRouts);
 app.use("/api", customClientRouts);
+app.use("/api", subscriptionsRouts);
 
 // app.listen(process.env.PORT, () => {
 //   console.log(`Main bot started and listening on port ${process.env.PORT}`);
